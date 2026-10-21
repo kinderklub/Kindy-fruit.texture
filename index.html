@@ -1,0 +1,3173 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Buah & Tekstur | Fruit Texture Adventure</title>
+  <!-- Google Fonts: Quicksand for clean rounded preschool typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <style>
+    :root {
+      --font-main: 'Quicksand', 'QuickSans', system-ui, -apple-system, sans-serif;
+    }
+    * {
+      font-family: var(--font-main);
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
+    body, html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+      background: #cbf3f0;
+      color: #334155;
+    }
+
+    /* 3D Toy Farm aesthetics */
+    .toy-card {
+      background: #ffffff;
+      border: 4px solid #f8e4c9;
+      border-bottom: 7px solid #e2c299;
+      border-radius: 28px;
+      box-shadow: 0 16px 32px rgba(135, 78, 25, 0.15), inset 0 2px 0 rgba(255, 255, 255, 0.8);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .toy-card-interactive:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 20px 36px rgba(135, 78, 25, 0.2), inset 0 2px 0 rgba(255, 255, 255, 0.9);
+    }
+    .toy-card-interactive:active {
+      transform: translateY(2px) scale(0.98);
+      border-bottom-width: 4px;
+    }
+
+    /* Chunky Preschool Buttons */
+    .btn-toy {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      border-radius: 24px;
+      padding: 12px 28px;
+      min-height: 48px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 6px 0 var(--btn-shadow, #d97706), 0 10px 20px rgba(0,0,0,0.15);
+      border: 3px solid rgba(255, 255, 255, 0.75);
+    }
+    .btn-toy:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 0 var(--btn-shadow, #d97706), 0 14px 24px rgba(0,0,0,0.18);
+    }
+    .btn-toy:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 var(--btn-shadow, #d97706), 0 4px 10px rgba(0,0,0,0.12);
+    }
+
+    .btn-candy-coral {
+      background: linear-gradient(180deg, #ff7b72 0%, #ee5253 100%);
+      --btn-shadow: #b71540;
+      color: #ffffff;
+    }
+    .btn-candy-peach {
+      background: linear-gradient(180deg, #ffbe76 0%, #f0932b 100%);
+      --btn-shadow: #cf6a17;
+      color: #ffffff;
+    }
+    .btn-candy-mint {
+      background: linear-gradient(180deg, #55efc4 0%, #00b894 100%);
+      --btn-shadow: #00846b;
+      color: #ffffff;
+    }
+    .btn-candy-lavender {
+      background: linear-gradient(180deg, #a29bfe 0%, #6c5ce7 100%);
+      --btn-shadow: #4834d4;
+      color: #ffffff;
+    }
+    .btn-candy-sky {
+      background: linear-gradient(180deg, #74b9ff 0%, #0984e3 100%);
+      --btn-shadow: #0652dd;
+      color: #ffffff;
+    }
+    .btn-candy-butter {
+      background: linear-gradient(180deg, #ffeaa7 0%, #fdcb6e 100%);
+      --btn-shadow: #e17055;
+      color: #633c02;
+    }
+
+    /* Floating Keyframes */
+    @keyframes bobble {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(1.5deg); }
+    }
+    @keyframes gentlePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    @keyframes wiggleWrong {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-12px) rotate(-4deg); }
+      40% { transform: translateX(12px) rotate(4deg); }
+      60% { transform: translateX(-8px) rotate(-2deg); }
+      80% { transform: translateX(8px) rotate(2deg); }
+    }
+    @keyframes sparkleFloat {
+      0% { transform: translate(0, 0) scale(0); opacity: 0; }
+      50% { transform: translate(var(--tx, 0), var(--ty, -30px)) scale(1.2); opacity: 1; }
+      100% { transform: translate(var(--tx2, 0), var(--ty2, -60px)) scale(0); opacity: 0; }
+    }
+
+    .animate-bobble { animation: bobble 3.5s ease-in-out infinite; }
+    .animate-wiggle { animation: wiggleWrong 0.5s ease-in-out; }
+    .animate-pulse-gentle { animation: gentlePulse 2s ease-in-out infinite; }
+
+    /* Touch & Drag Styling */
+    .draggable-fruit {
+      touch-action: none;
+      cursor: grab;
+      position: relative;
+      z-index: 40;
+    }
+    .draggable-fruit:active {
+      cursor: grabbing;
+    }
+    .drop-target {
+      transition: all 0.25s ease;
+    }
+    .drop-target.hover-active {
+      transform: scale(1.07);
+      border-color: #ff9f43 !important;
+      background-color: #fff9e6 !important;
+      box-shadow: 0 0 25px rgba(255, 159, 67, 0.45) !important;
+    }
+
+    /* Fixed Aspect Ratio Game Frame */
+    #app-container {
+      position: relative;
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .screen-panel {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease-out;
+    }
+    .screen-panel.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    /* Custom Scrollbar for collection/tables */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #fdf2e9; border-radius: 8px; }
+    ::-webkit-scrollbar-thumb { background: #fbc531; border-radius: 8px; border: 2px solid #fdf2e9; }
+  </style>
+</head>
+<body class="bg-[#bfeae4] text-slate-700 antialiased overflow-x-hidden flex flex-col min-h-screen">
+
+  <div class="fixed inset-0 w-full h-full pointer-events-none z-0 overflow-hidden">
+    <svg id="full-screen-background"
+         viewBox="0 0 1440 900"
+         preserveAspectRatio="xMidYMid slice"
+         width="100%"
+         height="100%"
+         aria-hidden="true"
+         style="pointer-events: none;">
+      <defs>
+        <!-- Gradients for 3D miniature feel -->
+        <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#a0e2fc"/>
+          <stop offset="65%" stop-color="#d4f4ff"/>
+          <stop offset="100%" stop-color="#fdfbf7"/>
+        </linearGradient>
+        <linearGradient id="hillFarGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#b4ebb0"/>
+          <stop offset="100%" stop-color="#8fd48a"/>
+        </linearGradient>
+        <linearGradient id="hillMidGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#9ddc88"/>
+          <stop offset="100%" stop-color="#6ebd58"/>
+        </linearGradient>
+        <linearGradient id="hillNearGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#80cf65"/>
+          <stop offset="100%" stop-color="#5aa841"/>
+        </linearGradient>
+        <linearGradient id="pathGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#fce8bd"/>
+          <stop offset="100%" stop-color="#e9caa0"/>
+        </linearGradient>
+        <linearGradient id="barnRoofGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#ff7f72"/>
+          <stop offset="100%" stop-color="#e84118"/>
+        </linearGradient>
+        <linearGradient id="barnWallGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#ffe3dc"/>
+          <stop offset="100%" stop-color="#f8bfae"/>
+        </linearGradient>
+        <linearGradient id="woodTrunk" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#b58253"/>
+          <stop offset="60%" stop-color="#8b572a"/>
+          <stop offset="100%" stop-color="#5c3818"/>
+        </linearGradient>
+        <linearGradient id="foliageGrad1" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#95e65a"/>
+          <stop offset="60%" stop-color="#65bf26"/>
+          <stop offset="100%" stop-color="#468817"/>
+        </linearGradient>
+        <linearGradient id="foliageGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#b1ee75"/>
+          <stop offset="60%" stop-color="#79cd36"/>
+          <stop offset="100%" stop-color="#4f8f1c"/>
+        </linearGradient>
+        <filter id="toyShadow" x="-10%" y="-10%" width="130%" height="130%">
+          <feDropShadow dx="0" dy="8" stdDeviation="6" flood-color="#2d521e" flood-opacity="0.22"/>
+        </filter>
+        <filter id="softContactShadow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="5"/>
+          <feOffset dx="0" dy="6" result="offsetblur"/>
+          <feFlood flood-color="#1e3a12" flood-opacity="0.25"/>
+          <feComposite in2="offsetblur" operator="in"/>
+          <feMerge>
+            <feMergeNode/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+
+      <!-- SKY -->
+      <rect width="1440" height="900" fill="url(#skyGrad)"/>
+
+      <!-- PUFFY 3D CLOUDS (Animated Independent Drifting) -->
+      <g opacity="0.95">
+        <g id="cloud1">
+          <ellipse cx="220" cy="110" rx="90" ry="45" fill="#ffffff" filter="url(#softContactShadow)"/>
+          <ellipse cx="280" cy="95" rx="70" ry="50" fill="#ffffff"/>
+          <ellipse cx="170" cy="115" rx="55" ry="38" fill="#ffffff"/>
+          <path d="M 130 135 Q 220 155 330 135 Z" fill="#ebf6fc"/>
+          <animateTransform attributeName="transform" type="translate" values="-180,0; 1550,0" dur="88s" repeatCount="indefinite" />
+        </g>
+        <g id="cloud2">
+          <ellipse cx="880" cy="160" rx="110" ry="55" fill="#ffffff" filter="url(#softContactShadow)"/>
+          <ellipse cx="960" cy="140" rx="80" ry="60" fill="#ffffff"/>
+          <ellipse cx="810" cy="165" rx="65" ry="42" fill="#ffffff"/>
+          <path d="M 760 190 Q 880 215 1020 190 Z" fill="#ebf6fc"/>
+          <animateTransform attributeName="transform" type="translate" values="-300,0; 1400,0" dur="115s" repeatCount="indefinite" />
+        </g>
+        <g id="cloud3">
+          <ellipse cx="1320" cy="80" rx="80" ry="40" fill="#ffffff"/>
+          <ellipse cx="1370" cy="70" rx="60" ry="42" fill="#ffffff"/>
+          <animateTransform attributeName="transform" type="translate" values="0,0; -1450,0" dur="98s" repeatCount="indefinite" />
+        </g>
+      </g>
+
+      <!-- DISTANT BIRDS (Cute V Shapes gliding) -->
+      <g stroke="#64a5c3" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.75">
+        <path d="M 400 130 Q 410 120 420 130 Q 430 120 440 130">
+          <animateTransform attributeName="transform" type="translate" values="0,0; 1200,-50" dur="42s" repeatCount="indefinite"/>
+        </path>
+        <path d="M 450 150 Q 458 142 466 150 Q 474 142 482 150">
+          <animateTransform attributeName="transform" type="translate" values="0,0; 1200,-50" dur="45s" repeatCount="indefinite"/>
+        </path>
+      </g>
+
+      <!-- BACKGROUND: DISTANT ROLLING HILLS & DISTANT ORCHARD ROWS -->
+      <g>
+        <ellipse cx="320" cy="460" rx="550" ry="170" fill="url(#hillFarGrad)"/>
+        <ellipse cx="1180" cy="450" rx="580" ry="180" fill="url(#hillFarGrad)"/>
+        <!-- Distant tiny trees & orchard ridges -->
+        <g fill="#76bc68" opacity="0.65">
+          <circle cx="210" cy="330" r="18"/>
+          <circle cx="240" cy="335" r="22"/>
+          <circle cx="280" cy="328" r="16"/>
+          <circle cx="330" cy="335" r="25"/>
+          <circle cx="980" cy="320" r="20"/>
+          <circle cx="1020" cy="315" r="24"/>
+          <circle cx="1060" cy="322" r="18"/>
+          <circle cx="1100" cy="315" r="26"/>
+        </g>
+      </g>
+
+      <!-- MID-BACKGROUND: CUTE TOY FARM STRUCTURES & BARN -->
+      <!-- Center-Right: 3D Miniature Barn & Silo -->
+      <g id="mini-barn" transform="translate(980, 240)" filter="url(#toyShadow)">
+        <!-- Ground contact shadow -->
+        <ellipse cx="140" cy="225" rx="160" ry="32" fill="#3b7222" opacity="0.35"/>
+        <!-- Silo -->
+        <g transform="translate(230, 60)">
+          <path d="M 10 30 C 10 0 60 0 60 30 L 60 150 L 10 150 Z" fill="#e4f1fe"/>
+          <path d="M 45 30 C 45 5 60 5 60 30 L 60 150 L 45 150 Z" fill="#c3daf0"/>
+          <path d="M 10 30 C 10 0 60 0 60 30 Z" fill="#ff7675"/>
+          <line x1="10" y1="70" x2="60" y2="70" stroke="#b2bec3" stroke-width="3"/>
+          <line x1="10" y1="110" x2="60" y2="110" stroke="#b2bec3" stroke-width="3"/>
+        </g>
+        <!-- Barn Body (Isometric / 3/4 Chunky) -->
+        <!-- Side Wall (Depth) -->
+        <path d="M 170 85 L 220 110 L 220 215 L 170 190 Z" fill="#e59882"/>
+        <!-- Front Wall -->
+        <rect x="30" y="85" width="140" height="110" rx="10" fill="url(#barnWallGrad)"/>
+        <!-- Barn Roof Front -->
+        <path d="M 15 90 L 100 25 L 185 90 Z" fill="url(#barnRoofGrad)"/>
+        <!-- Barn Roof Side -->
+        <path d="M 100 25 L 155 45 L 235 110 L 185 90 Z" fill="#d63031"/>
+        <!-- Roof Rim Highlight -->
+        <path d="M 15 90 L 100 25 L 185 90" stroke="#ffffff" stroke-width="5" stroke-linecap="round" fill="none"/>
+        <!-- Cute Barn Big Door with X pattern -->
+        <rect x="70" y="125" width="60" height="70" rx="8" fill="#ffeaa7"/>
+        <line x1="72" y1="127" x2="128" y2="193" stroke="#e17055" stroke-width="4"/>
+        <line x1="128" y1="127" x2="72" y2="193" stroke="#e17055" stroke-width="4"/>
+        <rect x="70" y="125" width="60" height="70" rx="8" fill="none" stroke="#d63031" stroke-width="4"/>
+        <!-- Round Barn Attic Window -->
+        <circle cx="100" cy="65" r="16" fill="#74b9ff" stroke="#ffffff" stroke-width="4"/>
+        <line x1="100" y1="49" x2="100" y2="81" stroke="#ffffff" stroke-width="3"/>
+        <line x1="84" y1="65" x2="116" y2="65" stroke="#ffffff" stroke-width="3"/>
+        <!-- Cute Windmill attached to Barn -->
+        <g transform="translate(100, 20)">
+          <circle cx="0" cy="0" r="7" fill="#ffeaa7" stroke="#d63031" stroke-width="2"/>
+          <g>
+            <path d="M 0 0 L -12 -55 L 0 -62 L 12 -55 Z" fill="#ffffff" stroke="#e17055" stroke-width="2"/>
+            <path d="M 0 0 L 55 -12 L 62 0 L 55 12 Z" fill="#ffffff" stroke="#e17055" stroke-width="2"/>
+            <path d="M 0 0 L 12 55 L 0 62 L -12 55 Z" fill="#ffffff" stroke="#e17055" stroke-width="2"/>
+            <path d="M 0 0 L -55 12 L -62 0 L -55 -12 Z" fill="#ffffff" stroke="#e17055" stroke-width="2"/>
+            <animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="24s" repeatCount="indefinite"/>
+          </g>
+        </g>
+      </g>
+
+      <!-- MID-BACKGROUND: CHUNKY FARMHOUSE (Left side) -->
+      <g id="mini-farmhouse" transform="translate(120, 260)" filter="url(#toyShadow)">
+        <ellipse cx="130" cy="205" rx="140" ry="28" fill="#3b7222" opacity="0.3"/>
+        <!-- Chimney with puffing smoke -->
+        <rect x="150" y="25" width="26" height="45" rx="4" fill="#e17055"/>
+        <circle cx="163" cy="18" r="8" fill="#ffffff" opacity="0.8">
+          <animate attributeName="cy" values="18; -20" dur="3.5s" repeatCount="indefinite"/>
+          <animate attributeName="r" values="8; 24" dur="3.5s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.8; 0" dur="3.5s" repeatCount="indefinite"/>
+        </circle>
+        <!-- House Base -->
+        <rect x="50" y="90" width="130" height="95" rx="14" fill="#fff5eb"/>
+        <!-- Side Wall (Depth) -->
+        <path d="M 180 90 L 225 110 L 225 185 L 180 185 Z" fill="#eddcd0"/>
+        <!-- Pastel Lavender Roof -->
+        <path d="M 35 95 L 115 35 L 195 95 Z" fill="#a29bfe"/>
+        <path d="M 115 35 L 165 48 L 245 110 L 195 95 Z" fill="#6c5ce7"/>
+        <path d="M 35 95 L 115 35 L 195 95" stroke="#ffffff" stroke-width="5" fill="none"/>
+        <!-- Windows and Cute Peach Door -->
+        <rect x="68" y="115" width="30" height="30" rx="6" fill="#81ecec" stroke="#ffffff" stroke-width="3"/>
+        <rect x="130" y="115" width="34" height="68" rx="8" fill="#ffbe76" stroke="#ffffff" stroke-width="3"/>
+        <circle cx="156" cy="150" r="3.5" fill="#d35400"/>
+        <!-- Cute Flower Box under window -->
+        <rect x="64" y="146" width="38" height="12" rx="4" fill="#e17055"/>
+        <circle cx="72" cy="144" r="5" fill="#fd79a8"/>
+        <circle cx="83" cy="144" r="5" fill="#ffeaa7"/>
+        <circle cx="94" cy="144" r="5" fill="#fd79a8"/>
+      </g>
+
+      <!-- MIDGROUND: ROLLING ORCHARD FIELDS & WINDING TOY FARM PATH -->
+      <g>
+        <!-- Main lush rolling ground -->
+        <path d="M -50 490 Q 300 420 750 470 T 1500 480 L 1500 950 L -50 950 Z" fill="url(#hillNearGrad)"/>
+        
+        <!-- Winding Peach/Sand Farm Path -->
+        <path d="M 180 920 C 260 760 380 620 620 580 C 850 540 980 470 1060 410 L 1150 425 C 1050 510 880 590 680 640 C 440 700 360 810 320 920 Z" fill="url(#pathGrad)"/>
+        <!-- Little wooden footbridge on path -->
+        <g transform="translate(560, 600) rotate(-15)">
+          <rect x="0" y="0" width="110" height="28" rx="6" fill="#c08457" stroke="#784421" stroke-width="2"/>
+          <line x1="28" y1="0" x2="28" y2="28" stroke="#784421" stroke-width="2"/>
+          <line x1="56" y1="0" x2="56" y2="28" stroke="#784421" stroke-width="2"/>
+          <line x1="84" y1="0" x2="84" y2="28" stroke="#784421" stroke-width="2"/>
+        </g>
+      </g>
+
+      <!-- MIDGROUND: CHIBI 3D FRUIT TREES (Left & Center-Right) -->
+      <!-- Left Tree 1: Apple Tree with Hanging Apples that gently sway -->
+      <g id="tree-left" transform="translate(180, 440)" filter="url(#toyShadow)">
+        <ellipse cx="80" cy="220" rx="90" ry="24" fill="#2d521e" opacity="0.35"/>
+        <!-- Chunky Wood Trunk -->
+        <path d="M 60 120 Q 65 180 50 220 L 110 220 Q 95 170 95 120 Z" fill="url(#woodTrunk)"/>
+        <!-- Foliage Clusters (3D Puffy spheres) -->
+        <circle cx="80" cy="90" r="75" fill="url(#foliageGrad1)"/>
+        <circle cx="35" cy="115" r="50" fill="url(#foliageGrad2)"/>
+        <circle cx="125" cy="115" r="55" fill="url(#foliageGrad1)"/>
+        <circle cx="80" cy="55" r="55" fill="#a4f368"/>
+        <!-- Highlights on foliage -->
+        <ellipse cx="65" cy="40" rx="22" ry="12" fill="#ffffff" opacity="0.35"/>
+        <ellipse cx="30" cy="95" rx="16" ry="9" fill="#ffffff" opacity="0.3"/>
+        <!-- Real Crisp Red Apples hanging & gently bobbing -->
+        <g transform="translate(45, 90)">
+          <circle cx="0" cy="0" r="14" fill="#ff4757"/>
+          <ellipse cx="-4" cy="-4" rx="4" ry="2" fill="#ffffff" opacity="0.6"/>
+          <path d="M 0 -13 Q 5 -18 10 -15" stroke="#784421" stroke-width="3" fill="none"/>
+          <animateTransform attributeName="transform" type="translate" values="45,90; 45,94; 45,90" dur="3.2s" repeatCount="indefinite"/>
+        </g>
+        <g transform="translate(110, 105)">
+          <circle cx="0" cy="0" r="13" fill="#ff4757"/>
+          <ellipse cx="-4" cy="-4" rx="3.5" ry="2" fill="#ffffff" opacity="0.6"/>
+          <animateTransform attributeName="transform" type="translate" values="110,105; 110,109; 110,105" dur="4s" repeatCount="indefinite"/>
+        </g>
+        <g transform="translate(80, 130)">
+          <circle cx="0" cy="0" r="14" fill="#ff4757"/>
+          <ellipse cx="-4" cy="-4" rx="4" ry="2" fill="#ffffff" opacity="0.6"/>
+          <animateTransform attributeName="transform" type="translate" values="80,130; 80,134; 80,130" dur="2.8s" repeatCount="indefinite"/>
+        </g>
+      </g>
+
+      <!-- Center-Right Tree 2: Cute Orange/Citrus Tree -->
+      <g id="tree-citrus" transform="translate(820, 460)" filter="url(#toyShadow)">
+        <ellipse cx="70" cy="210" rx="80" ry="22" fill="#2d521e" opacity="0.35"/>
+        <path d="M 55 110 Q 55 170 40 210 L 95 210 Q 85 160 85 110 Z" fill="url(#woodTrunk)"/>
+        <circle cx="70" cy="80" r="70" fill="url(#foliageGrad2)"/>
+        <circle cx="30" cy="100" r="45" fill="url(#foliageGrad1)"/>
+        <circle cx="110" cy="100" r="50" fill="url(#foliageGrad2)"/>
+        <!-- Oranges bobbing -->
+        <g transform="translate(40, 75)">
+          <circle cx="0" cy="0" r="13" fill="#ffa502"/>
+          <circle cx="0" cy="0" r="1.5" fill="#e67e22"/>
+          <circle cx="3" cy="2" r="1.5" fill="#e67e22"/>
+          <ellipse cx="-4" cy="-4" rx="4" ry="2" fill="#ffffff" opacity="0.6"/>
+          <animateTransform attributeName="transform" type="translate" values="40,75; 40,78; 40,75" dur="3.6s" repeatCount="indefinite"/>
+        </g>
+        <g transform="translate(95, 95)">
+          <circle cx="0" cy="0" r="12" fill="#ffa502"/>
+          <ellipse cx="-4" cy="-4" rx="3.5" ry="2" fill="#ffffff" opacity="0.6"/>
+          <animateTransform attributeName="transform" type="translate" values="95,95; 95,99; 95,95" dur="3.1s" repeatCount="indefinite"/>
+        </g>
+      </g>
+
+      <!-- MIDGROUND: CHIBI POND WITH WATER LILIES & SWAYING CATTAILS -->
+      <g id="mini-pond" transform="translate(420, 680)">
+        <ellipse cx="90" cy="50" rx="105" ry="38" fill="#55efc4" opacity="0.9"/>
+        <ellipse cx="85" cy="46" rx="90" ry="28" fill="#81ecec"/>
+        <ellipse cx="60" cy="35" rx="35" ry="12" fill="#dff9fb" opacity="0.75">
+          <animate attributeName="rx" values="35; 42; 35" dur="4s" repeatCount="indefinite"/>
+        </ellipse>
+        <!-- Lily Pad with Pink Blossom -->
+        <g transform="translate(70, 45)">
+          <ellipse cx="0" cy="0" rx="18" ry="9" fill="#2ed573"/>
+          <path d="M 0 0 L 12 -4" stroke="#81ecec" stroke-width="2"/>
+          <circle cx="3" cy="-4" r="5" fill="#ff78cb"/>
+          <circle cx="3" cy="-4" r="2.5" fill="#ffeaa7"/>
+        </g>
+      </g>
+
+      <!-- MIDGROUND: LITTLE WOODEN FARM FENCE & SUNFLOWERS -->
+      <g id="farm-fence" transform="translate(340, 520)">
+        <!-- Fence posts and beams -->
+        <rect x="0" y="0" width="12" height="42" rx="4" fill="#e8c49a" stroke="#aa7a48" stroke-width="2"/>
+        <rect x="40" y="0" width="12" height="42" rx="4" fill="#e8c49a" stroke="#aa7a48" stroke-width="2"/>
+        <rect x="80" y="0" width="12" height="42" rx="4" fill="#e8c49a" stroke="#aa7a48" stroke-width="2"/>
+        <rect x="-8" y="10" width="105" height="9" rx="3" fill="#edd6b8" stroke="#aa7a48" stroke-width="2"/>
+        <rect x="-8" y="24" width="105" height="9" rx="3" fill="#edd6b8" stroke="#aa7a48" stroke-width="2"/>
+        <!-- Sunflower nodding behind fence -->
+        <g transform="translate(105, 5)">
+          <circle cx="0" cy="0" r="14" fill="#ffbe76"/>
+          <circle cx="0" cy="0" r="7" fill="#6d4c41"/>
+          <!-- Petals -->
+          <circle cx="0" cy="-14" r="5" fill="#f6e58d"/>
+          <circle cx="10" cy="-10" r="5" fill="#f6e58d"/>
+          <circle cx="14" cy="0" r="5" fill="#f6e58d"/>
+          <circle cx="10" cy="10" r="5" fill="#f6e58d"/>
+          <circle cx="0" cy="14" r="5" fill="#f6e58d"/>
+          <circle cx="-10" cy="10" r="5" fill="#f6e58d"/>
+          <circle cx="-14" cy="0" r="5" fill="#f6e58d"/>
+          <circle cx="-10" cy="-10" r="5" fill="#f6e58d"/>
+          <animateTransform attributeName="transform" type="rotate" values="-5, 105, 20; 5, 105, 20; -5, 105, 20" dur="4.5s" repeatCount="indefinite"/>
+        </g>
+      </g>
+
+      <!-- MIDGROUND: CHIBI HARVEST WHEELBARROW & PUMPKINS -->
+      <g id="farm-wheelbarrow" transform="translate(730, 660)" filter="url(#toyShadow)">
+        <ellipse cx="60" cy="65" rx="45" ry="12" fill="#2d521e" opacity="0.3"/>
+        <!-- Wheel -->
+        <circle cx="18" cy="60" r="14" fill="#dfe6e9" stroke="#636e72" stroke-width="4"/>
+        <circle cx="18" cy="60" r="4" fill="#e17055"/>
+        <!-- Wooden legs and barrow bin -->
+        <path d="M 30 50 L 50 68" stroke="#8b572a" stroke-width="5" stroke-linecap="round"/>
+        <path d="M 20 40 L 95 25 L 90 52 L 25 55 Z" fill="#fab1a0" stroke="#e17055" stroke-width="3"/>
+        <path d="M 90 35 L 115 45" stroke="#8b572a" stroke-width="5" stroke-linecap="round"/>
+        <!-- Strawberries overflowing in barrow -->
+        <circle cx="45" cy="30" r="9" fill="#ff4757"/>
+        <circle cx="62" cy="26" r="10" fill="#ff4757"/>
+        <circle cx="78" cy="30" r="9" fill="#ff4757"/>
+      </g>
+
+      <!-- FOREGROUND (BOTTOM 20-25%): DENSE 3D TOY HARVEST DETAIL (Crates, Baskets, Flowers, Giant Fruits) -->
+      <!-- Left Foreground: Giant Woven Harvesting Basket filled with Melons & Pineapples -->
+      <g id="fg-basket-left" transform="translate(40, 720)" filter="url(#toyShadow)">
+        <!-- Giant soft contact shadow -->
+        <ellipse cx="140" cy="155" rx="145" ry="34" fill="#1b380f" opacity="0.4"/>
+        
+        <!-- Basket Cavity Inner -->
+        <ellipse cx="140" cy="60" rx="130" ry="36" fill="#7a4b24"/>
+        
+        <!-- Fruit physically sitting inside basket -->
+        <!-- Big Watermelon (Berjalur / Striped) -->
+        <g transform="translate(90, 40)">
+          <ellipse cx="0" cy="0" rx="48" ry="36" fill="#2ed573" stroke="#10ac84" stroke-width="4"/>
+          <!-- Wavy dark stripes -->
+          <path d="M -35 -15 Q -10 5 -30 25" stroke="#1b7a42" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <path d="M -15 -28 Q 10 -5 -10 32" stroke="#1b7a42" stroke-width="7" fill="none" stroke-linecap="round"/>
+          <path d="M 12 -30 Q 30 -5 14 30" stroke="#1b7a42" stroke-width="7" fill="none" stroke-linecap="round"/>
+          <path d="M 32 -18 Q 45 2 32 20" stroke="#1b7a42" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <ellipse cx="-15" cy="-15" rx="12" ry="6" fill="#ffffff" opacity="0.35"/>
+        </g>
+
+        <!-- Big Pineapple (Bersisik / Scaly) peeking out -->
+        <g transform="translate(195, 25) rotate(18)">
+          <ellipse cx="0" cy="0" rx="34" ry="46" fill="#fbc531"/>
+          <!-- Pineapple Diamond Scaly Pattern -->
+          <path d="M -24 -24 L 24 24 M -28 0 L 16 40 M -16 -40 L 28 8 M 24 -24 L -24 24 M 28 0 L -16 40 M 16 -40 L -28 8" stroke="#e1b12c" stroke-width="3"/>
+          <circle cx="-6" cy="-10" r="2.5" fill="#e67e22"/>
+          <circle cx="10" cy="-6" r="2.5" fill="#e67e22"/>
+          <circle cx="-1" cy="12" r="2.5" fill="#e67e22"/>
+          <!-- Spiky green crown leaves -->
+          <path d="M -20 -44 L 0 -75 L 12 -44 L 24 -68 L 22 -40 Z" fill="#4cd137" stroke="#218c74" stroke-width="2"/>
+        </g>
+
+        <!-- Woven Basket Outer Wall (Chunky 3D rounded texture) -->
+        <path d="M 10 60 Q 140 85 270 60 L 250 150 Q 140 178 30 150 Z" fill="#d29864"/>
+        <!-- Basket Highlights and Woven Strands -->
+        <path d="M 20 85 Q 140 110 260 85" stroke="#f5cd9e" stroke-width="7" fill="none" stroke-linecap="round"/>
+        <path d="M 25 115 Q 140 140 255 115" stroke="#a0683a" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <path d="M 10 60 Q 140 85 270 60" stroke="#ffeaa7" stroke-width="9" fill="none" stroke-linecap="round"/>
+        <path d="M 10 60 Q 140 85 270 60" stroke="#a0683a" stroke-width="4" fill="none" stroke-linecap="round"/>
+      </g>
+
+      <!-- Center Foreground: Chunky Wooden Farm Crate with Rambutan & Dragon Fruit -->
+      <g id="fg-crate-center" transform="translate(620, 755)" filter="url(#toyShadow)">
+        <ellipse cx="110" cy="120" rx="120" ry="24" fill="#1b380f" opacity="0.35"/>
+        <!-- Wooden Crate Body -->
+        <rect x="15" y="30" width="190" height="90" rx="8" fill="#c08457" stroke="#784421" stroke-width="4"/>
+        <!-- Slat details -->
+        <line x1="15" y1="60" x2="205" y2="60" stroke="#5c3818" stroke-width="4"/>
+        <line x1="15" y1="90" x2="205" y2="90" stroke="#5c3818" stroke-width="4"/>
+        <rect x="25" y="30" width="18" height="90" fill="#aa7142" stroke="#5c3818" stroke-width="3"/>
+        <rect x="175" y="30" width="18" height="90" fill="#aa7142" stroke="#5c3818" stroke-width="3"/>
+        <!-- Fruit overflowing: Rambutan (Kasar / Rough-Hairy) -->
+        <g transform="translate(70, 22)">
+          <circle cx="0" cy="0" r="22" fill="#eb4d4b"/>
+          <!-- Soft hairy soft spines -->
+          <g stroke="#6ab04c" stroke-width="3" stroke-linecap="round" fill="none">
+            <path d="M 0 -22 Q -5 -32 -2 -36"/>
+            <path d="M 14 -16 Q 25 -25 30 -22"/>
+            <path d="M 22 2 Q 34 2 36 8"/>
+            <path d="M 16 16 Q 26 24 22 30"/>
+            <path d="M -8 20 Q -12 32 -18 34"/>
+            <path d="M -20 8 Q -32 10 -34 6"/>
+            <path d="M -16 -14 Q -28 -20 -26 -26"/>
+          </g>
+        </g>
+        <!-- Dragonfruit (Bersisik / Scaly) -->
+        <g transform="translate(145, 18) rotate(-10)">
+          <ellipse cx="0" cy="0" rx="24" ry="32" fill="#ff3838"/>
+          <!-- Green curved scales -->
+          <path d="M -18 -10 Q -28 -18 -18 -26" stroke="#2ed573" stroke-width="4" fill="#6ab04c"/>
+          <path d="M 18 -10 Q 28 -18 18 -26" stroke="#2ed573" stroke-width="4" fill="#6ab04c"/>
+          <path d="M -20 10 Q -30 6 -24 0" stroke="#2ed573" stroke-width="4" fill="#6ab04c"/>
+          <path d="M 20 10 Q 30 6 24 0" stroke="#2ed573" stroke-width="4" fill="#6ab04c"/>
+          <path d="M 0 -30 Q 0 -44 8 -40" stroke="#2ed573" stroke-width="4" fill="#6ab04c"/>
+        </g>
+      </g>
+
+      <!-- Right Foreground: Farm Signpost, Watering Can & Thick Bush with Berries -->
+      <g id="fg-right-props" transform="translate(1120, 710)" filter="url(#toyShadow)">
+        <ellipse cx="150" cy="165" rx="160" ry="30" fill="#1b380f" opacity="0.35"/>
+        <!-- Chunky Bush -->
+        <circle cx="210" cy="110" r="65" fill="#44bd32"/>
+        <circle cx="150" cy="125" r="55" fill="#4cd137"/>
+        <circle cx="260" cy="125" r="50" fill="#4cd137"/>
+        <!-- Strawberries on bush (Berbintik / Dotted) -->
+        <g transform="translate(170, 110)">
+          <path d="M 0 -10 C 14 -10 16 10 0 18 C -16 10 -14 -10 0 -10 Z" fill="#ff4757"/>
+          <path d="M -6 -10 Q 0 -16 6 -10" stroke="#2ed573" stroke-width="3" fill="none"/>
+          <circle cx="-4" cy="0" r="1.5" fill="#f9ca24"/>
+          <circle cx="4" cy="2" r="1.5" fill="#f9ca24"/>
+          <circle cx="0" cy="9" r="1.5" fill="#f9ca24"/>
+        </g>
+        <!-- Cute Pastel Blue Watering Can -->
+        <g transform="translate(70, 95)">
+          <ellipse cx="25" cy="50" rx="30" ry="10" fill="#1b380f" opacity="0.25"/>
+          <rect x="0" y="10" width="50" height="40" rx="12" fill="#74b9ff" stroke="#0984e3" stroke-width="3"/>
+          <path d="M 45 15 C 65 15 65 42 45 42" stroke="#0984e3" stroke-width="6" fill="none"/>
+          <line x1="10" y1="25" x2="-25" y2="5" stroke="#0984e3" stroke-width="6" stroke-linecap="round"/>
+          <ellipse cx="-28" cy="4" rx="7" ry="12" fill="#ffeaa7" stroke="#fdcb6e" stroke-width="2"/>
+        </g>
+        <!-- Wooden Signpost: "Buah & Tekstur" -->
+        <g transform="translate(20, 20)">
+          <rect x="40" y="0" width="12" height="120" rx="4" fill="#a0683a" stroke="#633e1c" stroke-width="2"/>
+          <rect x="-10" y="20" width="110" height="42" rx="10" fill="#f5cd9e" stroke="#aa7a48" stroke-width="3" transform="rotate(-4)"/>
+          <text x="44" y="47" font-family="'Quicksand', sans-serif" font-weight="800" font-size="14" fill="#633e1c" text-anchor="middle" transform="rotate(-4)">BUAH FARM</text>
+        </g>
+      </g>
+
+      <!-- ANIMATED FLUTTERING BUTTERFLIES (Multi-path SVGs) -->
+      <g id="butterfly1" transform="translate(480, 480)">
+        <ellipse cx="-6" cy="0" rx="8" ry="6" fill="#ff7675">
+          <animate attributeName="rx" values="8; 2; 8" dur="0.35s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="6" cy="0" rx="8" ry="6" fill="#ff7675">
+          <animate attributeName="rx" values="8; 2; 8" dur="0.35s" repeatCount="indefinite"/>
+        </ellipse>
+        <circle cx="0" cy="0" r="3" fill="#2d3436"/>
+        <animateMotion path="M 0 0 C 80 -60 120 40 220 -20 S 300 -100 400 -40" dur="18s" repeatCount="indefinite"/>
+      </g>
+      <g id="butterfly2" transform="translate(900, 520)">
+        <ellipse cx="-5" cy="0" rx="7" ry="5" fill="#ffeaa7">
+          <animate attributeName="rx" values="7; 2; 7" dur="0.28s" repeatCount="indefinite"/>
+        </ellipse>
+        <ellipse cx="5" cy="0" rx="7" ry="5" fill="#ffeaa7">
+          <animate attributeName="rx" values="7; 2; 7" dur="0.28s" repeatCount="indefinite"/>
+        </ellipse>
+        <circle cx="0" cy="0" r="2.5" fill="#2d3436"/>
+        <animateMotion path="M 0 0 C -60 -40 -120 20 -180 -30 S -260 -70 -340 -20" dur="22s" repeatCount="indefinite"/>
+      </g>
+    </svg>
+  </div>
+
+  <div id="app-container" class="relative z-10 flex flex-col justify-between w-full min-h-screen">
+    
+    <!-- TOP BAR (Brand, Language Switcher, Sound Toggle, Mascot Peek) -->
+    <header class="w-full px-4 pt-3 pb-2 flex items-center justify-between max-w-6xl mx-auto">
+      <div class="flex items-center gap-3">
+        <!-- Logo Badge -->
+        <button id="btn-header-home" onclick="navTo('home')" class="flex items-center gap-2.5 bg-white/90 backdrop-blur-md px-3.5 py-1.5 rounded-2xl border-2 border-amber-300 shadow-md hover:scale-105 transition-transform" aria-label="Laman Utama / Home">
+          <div class="w-9 h-9 rounded-xl bg-amber-400 flex items-center justify-center shadow-inner">
+            <!-- Mini SVG Apple -->
+            <svg class="w-6 h-6" viewBox="0 0 32 32">
+              <path d="M16 6 C12 2 6 6 6 14 C6 24 16 29 16 29 C16 29 26 24 26 14 C26 6 20 2 16 6 Z" fill="#ff4757"/>
+              <ellipse cx="12" cy="11" rx="2.5" ry="5" fill="#ff7675"/>
+              <path d="M16 6 Q18 2 22 3" stroke="#6d4c41" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+              <path d="M18 5 C22 4 23 8 18 7 Z" fill="#2ed573"/>
+            </svg>
+          </div>
+          <div class="text-left leading-tight hidden xs:block sm:block">
+            <span id="header-title" class="font-extrabold text-base md:text-lg text-emerald-800 tracking-tight block">Buah & Tekstur</span>
+            <span class="text-[10px] font-bold text-amber-700 tracking-wider uppercase block">Kindy Klub Farm</span>
+          </div>
+        </button>
+
+        <!-- Current Active Score Pill (During Game) -->
+        <div id="header-score-pill" class="hidden items-center gap-2 bg-amber-100/90 border-2 border-amber-400 px-3 py-1 rounded-2xl shadow-sm">
+          <svg class="w-5 h-5 text-amber-500 fill-current animate-pulse-gentle" viewBox="0 0 24 24">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          <span id="header-score-num" class="font-black text-amber-900 text-sm">0</span>
+        </div>
+      </div>
+
+      <!-- Action Utilities: Sound & Language Switcher -->
+      <div class="flex items-center gap-2">
+        <!-- Audio Mute/Unmute Button -->
+        <button id="btn-sound-toggle" onclick="toggleAudio()" class="w-11 h-11 bg-white/90 border-2 border-amber-300 rounded-2xl flex items-center justify-center shadow-md hover:bg-amber-50 text-amber-800 transition-transform active:scale-95" aria-label="Bunyi Audio / Sound">
+          <svg id="icon-sound-on" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          </svg>
+          <svg id="icon-sound-off" class="w-6 h-6 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+          </svg>
+        </button>
+
+        <!-- Language Pill (BM <-> EN) -->
+        <button id="btn-lang-toggle" onclick="toggleLanguage()" class="px-3.5 py-1.5 bg-white/90 border-2 border-emerald-400 rounded-2xl flex items-center gap-1.5 shadow-md hover:bg-emerald-50 text-emerald-800 font-extrabold text-sm transition-transform active:scale-95" aria-label="Tukar Bahasa / Switch Language">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+          <span id="lang-current-label">BM</span>
+          <span class="text-xs text-slate-400">|</span>
+          <span class="text-xs text-slate-400 font-bold">EN</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="w-full flex-grow flex items-center justify-center p-3 sm:p-5 relative z-10">
+
+      <!-- ================= 1. HOME SCREEN ================= -->
+      <section id="screen-home" class="screen-panel active flex-col items-center justify-center w-full max-w-4xl text-center">
+        <!-- Floating Mascot Badge -->
+        <div class="relative mb-2">
+          <!-- Mascot SVG (Chibi Farm Explorer: Kiko the Bear) -->
+          <div id="mascot-home" class="w-36 h-36 sm:w-44 sm:h-44 mx-auto animate-bobble filter drop-shadow-xl cursor-pointer" onclick="mascotSpeak()">
+            <svg viewBox="0 0 160 160" class="w-full h-full">
+              <!-- Shadow -->
+              <ellipse cx="80" cy="148" rx="46" ry="10" fill="#2d521e" opacity="0.3"/>
+              <!-- Bear Chunky Ears -->
+              <circle cx="48" cy="46" r="20" fill="#c08457" stroke="#784421" stroke-width="4"/>
+              <circle cx="48" cy="46" r="11" fill="#ffb8b8"/>
+              <circle cx="112" cy="46" r="20" fill="#c08457" stroke="#784421" stroke-width="4"/>
+              <circle cx="112" cy="46" r="11" fill="#ffb8b8"/>
+              <!-- Bear Head -->
+              <ellipse cx="80" cy="74" rx="46" ry="38" fill="#d29864" stroke="#784421" stroke-width="4"/>
+              <!-- Cheeks -->
+              <circle cx="54" cy="85" r="9" fill="#ff7675" opacity="0.6"/>
+              <circle cx="106" cy="85" r="9" fill="#ff7675" opacity="0.6"/>
+              <!-- Muzzle -->
+              <ellipse cx="80" cy="84" rx="18" ry="13" fill="#fff5eb"/>
+              <polygon points="80,78 74,84 86,84" fill="#5c3818"/>
+              <path d="M 80 84 Q 76 90 73 88 M 80 84 Q 84 90 87 88" stroke="#5c3818" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+              <!-- Big Sparkling Preschool Eyes -->
+              <g fill="#2d3436">
+                <circle cx="64" cy="68" r="6"/>
+                <circle cx="96" cy="68" r="6"/>
+                <circle cx="66" cy="66" r="2.5" fill="#ffffff"/>
+                <circle cx="98" cy="66" r="2.5" fill="#ffffff"/>
+              </g>
+              <!-- Cute Straw Gardening Hat -->
+              <g transform="translate(80, 42)">
+                <ellipse cx="0" cy="0" rx="55" ry="12" fill="#ffeaa7" stroke="#d6a031" stroke-width="3.5"/>
+                <path d="M -26 0 C -26 -28 26 -28 26 0 Z" fill="#fed330" stroke="#d6a031" stroke-width="3.5"/>
+                <rect x="-26" y="-6" width="52" height="6" fill="#ff6b6b"/>
+              </g>
+              <!-- Chunky Dungarees Body -->
+              <path d="M 52 106 Q 80 100 108 106 L 112 142 Q 80 148 48 142 Z" fill="#74b9ff" stroke="#0984e3" stroke-width="4"/>
+              <!-- Dungaree Straps -->
+              <rect x="58" y="104" width="8" height="24" rx="3" fill="#0984e3"/>
+              <circle cx="62" cy="122" r="2" fill="#ffeaa7"/>
+              <rect x="94" y="104" width="8" height="24" rx="3" fill="#0984e3"/>
+              <circle cx="98" cy="122" r="2" fill="#ffeaa7"/>
+              <!-- Paws waving -->
+              <circle cx="42" cy="112" r="10" fill="#d29864" stroke="#784421" stroke-width="3"/>
+              <circle cx="118" cy="112" r="10" fill="#d29864" stroke="#784421" stroke-width="3"/>
+            </svg>
+          </div>
+          <!-- Speech Bubble Tip -->
+          <div id="home-mascot-speech" class="absolute -top-3 sm:-top-5 right-0 sm:right-6 bg-white border-2 border-amber-400 px-3 py-1.5 rounded-2xl shadow-lg text-xs sm:text-sm font-extrabold text-amber-900 animate-bounce">
+            Jom rasa tekstur buah!
+          </div>
+        </div>
+
+        <!-- Main Title & Subtitle Card -->
+        <div class="toy-card px-6 py-6 sm:px-10 sm:py-8 max-w-xl mx-auto mb-6 bg-white/95">
+          <h1 id="home-title" class="text-3xl sm:text-5xl font-black text-emerald-800 tracking-tight leading-none mb-2 drop-shadow-sm">
+            Buah & Tekstur
+          </h1>
+          <p id="home-subtitle" class="text-amber-900 font-bold text-base sm:text-lg mb-6 leading-snug">
+            Jom teroka ladang buah yang comel!
+          </p>
+
+          <!-- Primary Start Button -->
+          <div class="flex flex-col gap-3.5 max-w-sm mx-auto">
+            <button id="btn-start-game" onclick="navTo('session')" class="btn-toy btn-candy-coral text-xl sm:text-2xl py-4">
+              <svg class="w-7 h-7 mr-2 fill-current" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <span id="txt-start-playing">Mula Main</span>
+            </button>
+            <button id="btn-instructions" onclick="navTo('instructions')" class="btn-toy btn-candy-butter text-base sm:text-lg py-3">
+              <svg class="w-5 h-5 mr-2 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+              <span id="txt-how-to-play">Cara Main</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Secondary Navigation Grid (Player Profile, Student Profile, Family Code, Collection) -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full max-w-xl mx-auto">
+          <button onclick="navTo('profile')" class="btn-toy btn-candy-mint text-xs sm:text-sm py-3 px-2 flex-col gap-1">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+            <span id="txt-btn-profile">Profil Pemain</span>
+          </button>
+          <button onclick="navTo('family')" class="btn-toy btn-candy-sky text-xs sm:text-sm py-3 px-2 flex-col gap-1">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+            <span id="txt-btn-family">Kod Keluarga</span>
+          </button>
+          <button onclick="navTo('student')" class="btn-toy btn-candy-peach text-xs sm:text-sm py-3 px-2 flex-col gap-1">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" /><path stroke-linecap="round" stroke-linejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /></svg>
+            <span id="txt-btn-student">Profil Murid</span>
+          </button>
+          <button onclick="navTo('collection')" class="btn-toy btn-candy-lavender text-xs sm:text-sm py-3 px-2 flex-col gap-1">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+            <span id="txt-btn-collection">Koleksi</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ================= 2. INSTRUCTIONS SCREEN ================= -->
+      <section id="screen-instructions" class="screen-panel flex-col items-center justify-center w-full max-w-3xl">
+        <div class="toy-card p-6 sm:p-8 w-full bg-white/95 max-h-[85vh] overflow-y-auto">
+          <!-- Header -->
+          <div class="flex items-center justify-between mb-4 border-b-2 border-amber-200 pb-3">
+            <h2 id="inst-title" class="text-2xl sm:text-3xl font-black text-emerald-800">Cara Main</h2>
+            <button onclick="navTo('home')" class="w-10 h-10 rounded-full bg-amber-100 border-2 border-amber-300 font-black text-amber-800 flex items-center justify-center hover:bg-amber-200">✕</button>
+          </div>
+          <p id="inst-subtitle" class="text-base sm:text-lg font-bold text-amber-900 mb-6">
+            Cari, padankan dan kenal tekstur buah di ladang!
+          </p>
+
+          <!-- Visual Demonstration Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <!-- Demo 1: Visual Texture Recognition -->
+            <div class="bg-amber-50/80 rounded-2xl p-4 border-2 border-amber-200 text-center flex flex-col items-center">
+              <div class="w-20 h-20 mb-2 flex items-center justify-center bg-white rounded-2xl shadow-inner border border-amber-200" id="inst-demo-svg1">
+                <!-- SVG Apple: Licin / Smooth -->
+              </div>
+              <h3 id="inst-card1-title" class="font-extrabold text-amber-900 text-base mb-1">1. Lihat & Rasa</h3>
+              <p id="inst-card1-desc" class="text-xs text-slate-600 font-semibold">Perhatikan kulit buah. Adakah ia licin, berbintik, berbonjol atau bersisik?</p>
+            </div>
+
+            <!-- Demo 2: Drag to Basket / Match -->
+            <div class="bg-emerald-50/80 rounded-2xl p-4 border-2 border-emerald-200 text-center flex flex-col items-center">
+              <div class="w-20 h-20 mb-2 flex items-center justify-center bg-white rounded-2xl shadow-inner border border-emerald-200" id="inst-demo-svg2">
+                <!-- SVG Basket demo -->
+              </div>
+              <h3 id="inst-card2-title" class="font-extrabold text-emerald-900 text-base mb-1">2. Tarik & Sambung</h3>
+              <p id="inst-card2-desc" class="text-xs text-slate-600 font-semibold">Tarik buah ke bakul atau label tekstur yang betul menggunakan jari anda.</p>
+            </div>
+
+            <!-- Demo 3: Score & Joy -->
+            <div class="bg-rose-50/80 rounded-2xl p-4 border-2 border-rose-200 text-center flex flex-col items-center">
+              <div class="w-20 h-20 mb-2 flex items-center justify-center bg-white rounded-2xl shadow-inner border border-rose-200" id="inst-demo-svg3">
+                <!-- SVG Star Trophy -->
+              </div>
+              <h3 id="inst-card3-title" class="font-extrabold text-rose-900 text-base mb-1">3. Kumpul Bintang</h3>
+              <p id="inst-card3-desc" class="text-xs text-slate-600 font-semibold">Dapat 10 mata setiap jawapan betul! Tiada markah ditolak jika silap.</p>
+            </div>
+          </div>
+
+          <!-- Bottom Button -->
+          <div class="text-center">
+            <button onclick="navTo('session')" class="btn-toy btn-candy-coral text-lg px-8 py-3">
+              <span id="inst-btn-play">Mula Sekarang!</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 3. SESSION SELECTION SCREEN ================= -->
+      <section id="screen-session" class="screen-panel flex-col items-center justify-center w-full max-w-2xl text-center">
+        <div class="toy-card p-6 sm:p-8 w-full bg-white/95">
+          <h2 id="session-title" class="text-2xl sm:text-4xl font-black text-emerald-800 mb-2">Pilih Permainan</h2>
+          <p id="session-subtitle" class="font-bold text-amber-900 text-sm sm:text-base mb-6">Berapa banyak soalan buah yang ingin anda teroka?</p>
+
+          <div class="grid grid-cols-2 gap-4 max-w-md mx-auto mb-6">
+            <button onclick="startSession(5)" class="btn-toy btn-candy-butter text-lg sm:text-xl py-4 flex flex-col items-center">
+              <span class="text-2xl font-black mb-1">5</span>
+              <span id="session-opt-5" class="text-xs sm:text-sm font-bold">5 Soalan</span>
+            </button>
+            <button onclick="startSession(10)" class="btn-toy btn-candy-mint text-lg sm:text-xl py-4 flex flex-col items-center">
+              <span class="text-2xl font-black mb-1">10</span>
+              <span id="session-opt-10" class="text-xs sm:text-sm font-bold">10 Soalan</span>
+            </button>
+            <button onclick="startSession(15)" class="btn-toy btn-candy-sky text-lg sm:text-xl py-4 flex flex-col items-center">
+              <span class="text-2xl font-black mb-1">15</span>
+              <span id="session-opt-15" class="text-xs sm:text-sm font-bold">15 Soalan</span>
+            </button>
+            <button onclick="startSession(0)" class="btn-toy btn-candy-peach text-lg sm:text-xl py-4 flex flex-col items-center">
+              <svg class="w-7 h-7 mb-1 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+              <span id="session-opt-free" class="text-xs sm:text-sm font-bold">Main Bebas</span>
+            </button>
+          </div>
+
+          <button onclick="navTo('home')" class="text-slate-500 font-bold hover:text-slate-800 text-sm py-2">
+            ← <span id="session-back">Kembali ke Menu</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- ================= 4. GAMEPLAY ARENA SCREEN ================= -->
+      <section id="screen-game" class="screen-panel flex-col items-center w-full max-w-5xl">
+        <!-- Interactive Game Card Wrapper -->
+        <div class="toy-card w-full p-4 sm:p-6 bg-white/90 relative backdrop-blur-md min-h-[500px] flex flex-col justify-between overflow-hidden shadow-2xl">
+          
+          <!-- Top Farm Zone Indicator & Progress -->
+          <div class="flex items-center justify-between gap-3 border-b-2 border-amber-200/80 pb-3 mb-3">
+            <!-- Scene Title badge -->
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-full bg-emerald-500"></span>
+              <span id="game-scene-title" class="text-xs sm:text-sm font-extrabold text-emerald-800 uppercase tracking-wide">Kebun Epal Ceria</span>
+            </div>
+            <!-- Progress Pill -->
+            <div id="game-progress-wrapper" class="flex items-center gap-2 bg-amber-100 px-3 py-1 rounded-xl border border-amber-300">
+              <span id="game-progress-label" class="text-xs font-bold text-amber-800">Soalan</span>
+              <span id="game-progress-text" class="text-xs font-extrabold text-amber-900">1 / 5</span>
+            </div>
+          </div>
+
+          <!-- Dynamic Task Instruction & Audio prompt -->
+          <div class="text-center my-2">
+            <h2 id="game-question-text" class="text-xl sm:text-2xl md:text-3xl font-black text-slate-800 tracking-tight leading-tight">
+              Cari buah yang licin!
+            </h2>
+            <p id="game-hint-text" class="text-xs sm:text-sm font-bold text-amber-800 mt-1">
+              Tekan buah dengan permukaan licin berkilat.
+            </p>
+          </div>
+
+          <!-- SVG Canvas for Drag-to-Connect rubber-band string -->
+          <svg id="drag-connect-svg" class="absolute inset-0 w-full h-full pointer-events-none z-30"></svg>
+
+          <!-- Interactive Play Zone (Populated dynamically) -->
+          <div id="game-play-area" class="w-full flex-grow flex items-center justify-center my-4 relative min-h-[280px]">
+            <!-- Items, baskets, or drag destinations appear here -->
+          </div>
+
+          <!-- Bottom Status Bar with Mascot Feedback -->
+          <div class="flex items-center justify-between pt-2 border-t-2 border-amber-200/60 mt-2">
+            <!-- Mascot Quick Reaction -->
+            <div class="flex items-center gap-2.5">
+              <div id="game-mascot-avatar" class="w-11 h-11 flex-shrink-0">
+                <!-- Mini mascot head SVG -->
+              </div>
+              <div id="game-feedback-text" class="text-xs sm:text-sm font-extrabold text-amber-900">
+                Pilih buah yang sesuai di ladang!
+              </div>
+            </div>
+
+            <!-- Quit Button -->
+            <button onclick="quitGamePrompt()" class="text-xs font-extrabold text-rose-600 hover:text-rose-800 bg-rose-50 px-3 py-1.5 rounded-xl border border-rose-200">
+              <span id="game-btn-quit">Keluar</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 5. RESULT SCREEN ================= -->
+      <section id="screen-result" class="screen-panel flex-col items-center justify-center w-full max-w-xl text-center">
+        <div class="toy-card p-6 sm:p-10 w-full bg-white/95">
+          <!-- Animated Farm Trophy SVG -->
+          <div class="w-28 h-28 sm:w-36 sm:h-36 mx-auto mb-4 animate-bobble" id="result-trophy-svg">
+            <!-- Rendered by JS -->
+          </div>
+
+          <h2 id="res-heading" class="text-3xl sm:text-4xl font-black text-emerald-800 mb-1">Hebat!</h2>
+          <p id="res-subheading" class="text-amber-900 font-bold text-base sm:text-lg mb-6">Permainan Selesai!</p>
+
+          <!-- Score Metrics Grid -->
+          <div class="grid grid-cols-3 gap-3 mb-6 bg-amber-50/80 p-4 rounded-2xl border-2 border-amber-200">
+            <div>
+              <span id="res-lbl-score" class="text-xs font-bold text-slate-500 uppercase block mb-1">Skor</span>
+              <span id="res-val-score" class="text-2xl sm:text-3xl font-black text-amber-900">50</span>
+            </div>
+            <div>
+              <span id="res-lbl-correct" class="text-xs font-bold text-slate-500 uppercase block mb-1">Jawapan Betul</span>
+              <span id="res-val-correct" class="text-2xl sm:text-3xl font-black text-emerald-600">5</span>
+            </div>
+            <div>
+              <span id="res-lbl-accuracy" class="text-xs font-bold text-slate-500 uppercase block mb-1">Ketepatan</span>
+              <span id="res-val-accuracy" class="text-2xl sm:text-3xl font-black text-sky-600">100%</span>
+            </div>
+          </div>
+
+          <!-- Buttons -->
+          <div class="flex flex-col sm:flex-row gap-3 justify-center">
+            <button onclick="playAgain()" class="btn-toy btn-candy-coral text-lg py-3 px-6">
+              <span id="res-btn-again">Main Lagi</span>
+            </button>
+            <button onclick="navTo('home')" class="btn-toy btn-candy-butter text-base py-3 px-6">
+              <span id="res-btn-menu">Kembali ke Menu</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 6. FRUIT COLLECTION SCREEN ================= -->
+      <section id="screen-collection" class="screen-panel flex-col items-center justify-center w-full max-w-4xl">
+        <div class="toy-card p-6 sm:p-8 w-full bg-white/95 max-h-[85vh] overflow-y-auto">
+          <!-- Header -->
+          <div class="flex items-center justify-between mb-4 border-b-2 border-amber-200 pb-3">
+            <div>
+              <h2 id="col-title" class="text-2xl sm:text-3xl font-black text-emerald-800">Koleksi Buah</h2>
+              <p id="col-subtitle" class="text-xs sm:text-sm font-bold text-amber-900">Kenali semua tekstur buah sebenar di ladang comel kami!</p>
+            </div>
+            <button onclick="navTo('home')" class="w-10 h-10 rounded-full bg-amber-100 border-2 border-amber-300 font-black text-amber-800 flex items-center justify-center hover:bg-amber-200">✕</button>
+          </div>
+
+          <!-- Fruit Cards Grid (Built dynamically with actual vector SVG artwork) -->
+          <div id="collection-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5 mb-4">
+            <!-- Fruit cards injected by JS -->
+          </div>
+
+          <div class="text-center pt-2">
+            <button onclick="navTo('home')" class="btn-toy btn-candy-butter text-base px-8 py-2.5">
+              <span id="col-btn-back">Kembali ke Menu</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 7. PLAYER PROFILE SCREEN ================= -->
+      <section id="screen-profile" class="screen-panel flex-col items-center justify-center w-full max-w-2xl">
+        <div class="toy-card p-6 sm:p-8 w-full bg-white/95 max-h-[85vh] overflow-y-auto">
+          <div class="flex items-center justify-between mb-4 border-b-2 border-amber-200 pb-3">
+            <h2 id="prof-title" class="text-2xl sm:text-3xl font-black text-emerald-800">Profil Pemain</h2>
+            <button onclick="navTo('home')" class="w-10 h-10 rounded-full bg-amber-100 border-2 border-amber-300 font-black text-amber-800 flex items-center justify-center hover:bg-amber-200">✕</button>
+          </div>
+
+          <!-- Player Name Input (Starts Blank) -->
+          <div class="mb-4 text-left">
+            <label id="prof-lbl-name" class="block text-xs sm:text-sm font-extrabold text-amber-900 mb-1">Nama Pemain</label>
+            <div class="flex gap-2">
+              <input type="text" id="prof-input-name" placeholder="Masukkan nama..." class="flex-grow px-4 py-2.5 rounded-2xl border-2 border-amber-300 focus:outline-none focus:border-emerald-500 font-bold text-slate-800 bg-amber-50/50">
+              <button onclick="savePlayerName()" class="btn-toy btn-candy-mint text-sm py-2 px-5">
+                <span id="prof-btn-save">Simpan</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Statistics Grid -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-5">
+            <div class="bg-amber-50 p-3 rounded-2xl border border-amber-200 text-center">
+              <span id="prof-lbl-games" class="text-xs font-bold text-slate-500 block mb-1">Permainan Dimainkan</span>
+              <span id="prof-val-games" class="text-2xl font-black text-amber-900">0</span>
+            </div>
+            <div class="bg-emerald-50 p-3 rounded-2xl border border-emerald-200 text-center">
+              <span id="prof-lbl-answered" class="text-xs font-bold text-slate-500 block mb-1">Soalan Dijawab</span>
+              <span id="prof-val-answered" class="text-2xl font-black text-emerald-700">0</span>
+            </div>
+            <div class="bg-sky-50 p-3 rounded-2xl border border-sky-200 text-center">
+              <span id="prof-lbl-correct-tot" class="text-xs font-bold text-slate-500 block mb-1">Jawapan Betul</span>
+              <span id="prof-val-correct-tot" class="text-2xl font-black text-sky-700">0</span>
+            </div>
+            <div class="bg-purple-50 p-3 rounded-2xl border border-purple-200 text-center">
+              <span id="prof-lbl-best-score" class="text-xs font-bold text-slate-500 block mb-1">Skor Terbaik</span>
+              <span id="prof-val-best-score" class="text-2xl font-black text-purple-700">0</span>
+            </div>
+            <div class="bg-rose-50 p-3 rounded-2xl border border-rose-200 text-center col-span-2 sm:col-span-2">
+              <span id="prof-lbl-accuracy-tot" class="text-xs font-bold text-slate-500 block mb-1">Ketepatan Keseluruhan</span>
+              <span id="prof-val-accuracy-tot" class="text-2xl font-black text-rose-600">0%</span>
+            </div>
+          </div>
+
+          <!-- Recent Activity Log -->
+          <div class="text-left mb-4">
+            <h3 id="prof-lbl-activity" class="text-sm font-extrabold text-amber-900 mb-2">Aktiviti Terkini</h3>
+            <div id="prof-activity-list" class="space-y-2 max-h-36 overflow-y-auto pr-1">
+              <p id="prof-empty-activity" class="text-xs text-slate-400 font-semibold italic text-center py-4">Belum ada rekod permainan.</p>
+            </div>
+          </div>
+
+          <div class="text-center">
+            <button onclick="navTo('home')" class="btn-toy btn-candy-butter text-sm px-6 py-2.5">
+              <span id="prof-btn-back">Kembali ke Menu</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 8. STUDENT PROFILE SCREEN ================= -->
+      <section id="screen-student" class="screen-panel flex-col items-center justify-center w-full max-w-2xl">
+        <div class="toy-card p-6 sm:p-8 w-full bg-white/95">
+          <div class="flex items-center justify-between mb-4 border-b-2 border-amber-200 pb-3">
+            <h2 id="stud-title" class="text-2xl sm:text-3xl font-black text-emerald-800">Profil Murid</h2>
+            <button onclick="navTo('home')" class="w-10 h-10 rounded-full bg-amber-100 border-2 border-amber-300 font-black text-amber-800 flex items-center justify-center hover:bg-amber-200">✕</button>
+          </div>
+
+          <div class="space-y-3 text-left mb-6">
+            <div>
+              <label id="stud-lbl-name" class="block text-xs font-extrabold text-amber-900 mb-1">Nama Murid</label>
+              <input type="text" id="stud-input-name" placeholder="Nama murid..." class="w-full px-4 py-2.5 rounded-2xl border-2 border-amber-300 font-bold text-slate-800 bg-amber-50/50">
+            </div>
+            <div>
+              <label id="stud-lbl-class" class="block text-xs font-extrabold text-amber-900 mb-1">Kelas / Tadika</label>
+              <input type="text" id="stud-input-class" placeholder="Nama tadika / prasekolah..." class="w-full px-4 py-2.5 rounded-2xl border-2 border-amber-300 font-bold text-slate-800 bg-amber-50/50">
+            </div>
+            <div>
+              <label id="stud-lbl-notes" class="block text-xs font-extrabold text-amber-900 mb-1">Nota Pembelajaran</label>
+              <textarea id="stud-input-notes" rows="2" placeholder="Catatan guru atau kemajuan murid..." class="w-full px-4 py-2 rounded-2xl border-2 border-amber-300 font-semibold text-slate-800 bg-amber-50/50 text-sm"></textarea>
+            </div>
+            <button onclick="saveStudentProfile()" class="btn-toy btn-candy-mint text-sm py-2.5 px-6">
+              <span id="stud-btn-save">Simpan Profil Murid</span>
+            </button>
+          </div>
+
+          <div class="text-center">
+            <button onclick="navTo('home')" class="text-slate-500 font-bold hover:text-slate-800 text-sm">
+              ← <span id="stud-btn-back">Kembali ke Menu</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= 9. FAMILY CODE & HISTORY SCREEN ================= -->
+      <section id="screen-family" class="screen-panel flex-col items-center justify-center w-full max-w-2xl">
+        <div class="toy-card p-6 sm:p-8 w-full bg-white/95 max-h-[85vh] overflow-y-auto">
+          <div class="flex items-center justify-between mb-4 border-b-2 border-amber-200 pb-3">
+            <h2 id="fam-title" class="text-2xl sm:text-3xl font-black text-emerald-800">Kod Keluarga</h2>
+            <button onclick="navTo('home')" class="w-10 h-10 rounded-full bg-amber-100 border-2 border-amber-300 font-black text-amber-800 flex items-center justify-center hover:bg-amber-200">✕</button>
+          </div>
+
+          <!-- Family Code Input (Starts blank, never auto-generated) -->
+          <div class="mb-5 text-left bg-sky-50 p-4 rounded-2xl border border-sky-200">
+            <label id="fam-lbl-code" class="block text-xs sm:text-sm font-extrabold text-sky-900 mb-1">Kod Keluarga Anda</label>
+            <div class="flex gap-2">
+              <input type="text" id="fam-input-code" placeholder="Contoh: FAMILI-789" class="flex-grow px-4 py-2.5 rounded-2xl border-2 border-sky-300 font-black text-slate-800 bg-white">
+              <button onclick="saveFamilyCode()" class="btn-toy btn-candy-sky text-sm py-2 px-5">
+                <span id="fam-btn-save">Simpan Kod</span>
+              </button>
+            </div>
+            <p id="fam-code-hint" class="text-[11px] font-semibold text-sky-700 mt-2">
+              Gunakan kod ini untuk menghubungkan rekod pembelajaran prasekolah anak anda di peranti ini.
+            </p>
+          </div>
+
+          <!-- Family History Table -->
+          <div class="text-left mb-4">
+            <h3 id="fam-lbl-history" class="text-sm font-extrabold text-amber-900 mb-2">Sejarah Keluarga</h3>
+            <div id="fam-history-container" class="space-y-2 max-h-40 overflow-y-auto">
+              <p id="fam-empty-history" class="text-xs text-slate-400 font-semibold italic text-center py-4">Belum ada rekod sejarah keluarga disimpan.</p>
+            </div>
+          </div>
+
+          <div class="text-center">
+            <button onclick="navTo('home')" class="btn-toy btn-candy-butter text-sm px-6 py-2.5">
+              <span id="fam-btn-back">Kembali ke Menu</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer class="w-full text-center py-2.5 px-4 text-xs font-extrabold text-emerald-900/90 tracking-wide z-10 bg-white/70 backdrop-blur-sm border-t border-amber-200/50">
+      Kinder Klub | All Rights Reserved
+    </footer>
+  </div>
+
+  <script>
+    /* =========================================================
+       1. WEB AUDIO SYNTHESIZER (No External Sound Files)
+       ========================================================= */
+    let audioCtx = null;
+    let audioEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) audioCtx = new AudioContext();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function toggleAudio() {
+      audioEnabled = !audioEnabled;
+      const onIcon = document.getElementById('icon-sound-on');
+      const offIcon = document.getElementById('icon-sound-off');
+      if (audioEnabled) {
+        onIcon.classList.remove('hidden');
+        offIcon.classList.add('hidden');
+        playChime('pop');
+      } else {
+        onIcon.classList.add('hidden');
+        offIcon.classList.remove('hidden');
+      }
+    }
+
+    function playChime(type) {
+      if (!audioEnabled) return;
+      initAudio();
+      if (!audioCtx) return;
+
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      if (type === 'pop') {
+        // Cute bubble pop
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(450, now);
+        osc.frequency.exponentialRampToValueAtTime(750, now + 0.08);
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+        osc.start(now);
+        osc.stop(now + 0.1);
+      } else if (type === 'correct') {
+        // Cheerful major chord arpeggio
+        [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
+          const o = audioCtx.createOscillator();
+          const g = audioCtx.createGain();
+          o.connect(g);
+          g.connect(audioCtx.destination);
+          o.type = 'triangle';
+          o.frequency.setValueAtTime(freq, now + i * 0.07);
+          g.gain.setValueAtTime(0.3, now + i * 0.07);
+          g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.07 + 0.25);
+          o.start(now + i * 0.07);
+          o.stop(now + i * 0.07 + 0.28);
+        });
+      } else if (type === 'wrong') {
+        // Gentle soft boing (never harsh)
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(260, now);
+        osc.frequency.exponentialRampToValueAtTime(180, now + 0.22);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+        osc.start(now);
+        osc.stop(now + 0.26);
+      } else if (type === 'fanfare') {
+        // Celebration victory chime
+        [523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((freq, idx) => {
+          const o = audioCtx.createOscillator();
+          const g = audioCtx.createGain();
+          o.connect(g);
+          g.connect(audioCtx.destination);
+          o.type = 'sine';
+          o.frequency.setValueAtTime(freq, now + idx * 0.09);
+          g.gain.setValueAtTime(0.3, now + idx * 0.09);
+          g.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.09 + 0.4);
+          o.start(now + idx * 0.09);
+          o.stop(now + idx * 0.09 + 0.45);
+        });
+      }
+    }
+
+    /* =========================================================
+       2. BILINGUAL DICTIONARY & LOCALIZATION
+       ========================================================= */
+    let currentLang = 'ms'; // Default to Bahasa Melayu Malaysia
+
+    const I18N = {
+      ms: {
+        headerTitle: "Buah & Tekstur",
+        homeTitle: "Buah & Tekstur",
+        homeSubtitle: "Jom teroka ladang buah yang comel!",
+        homeSpeech: "Jom rasa tekstur buah!",
+        btnStartPlaying: "Mula Main",
+        btnHowToPlay: "Cara Main",
+        btnProfile: "Profil Pemain",
+        btnFamily: "Kod Keluarga",
+        btnStudent: "Profil Murid",
+        btnCollection: "Koleksi",
+
+        instTitle: "Cara Main",
+        instSubtitle: "Cari, padankan dan kenal tekstur buah di ladang!",
+        instC1T: "1. Lihat & Kenal",
+        instC1D: "Perhatikan kulit buah: adakah ia licin, berbintik, berbonjol atau bersisik?",
+        instC2T: "2. Tarik & Sambung",
+        instC2D: "Tarik buah ke bakul atau label tekstur yang betul menggunakan jari anda.",
+        instC3T: "3. Kumpul Bintang",
+        instC3D: "Dapat 10 mata setiap jawapan betul! Tiada markah ditolak jika silap.",
+        instPlay: "Mula Sekarang!",
+
+        sessionTitle: "Pilih Permainan",
+        sessionSubtitle: "Berapa banyak soalan buah yang ingin anda teroka?",
+        session5: "5 Soalan",
+        session10: "10 Soalan",
+        session15: "15 Soalan",
+        sessionFree: "Main Bebas",
+        sessionBack: "Kembali ke Menu",
+
+        questionProgress: "Soalan",
+        freePlayProgress: "Bebas",
+        btnQuit: "Keluar",
+        feedbackDefault: "Pilih buah yang sesuai di ladang!",
+        feedbackCorrect: "Hebat! Jawapan anda betul!",
+        feedbackWrong: "Cuba lagi!",
+
+        resHeading: "Hebat!",
+        resSubheading: "Permainan Selesai!",
+        resScore: "Skor",
+        resCorrect: "Jawapan Betul",
+        resAccuracy: "Ketepatan",
+        resAgain: "Main Lagi",
+        resMenu: "Kembali ke Menu",
+
+        colTitle: "Koleksi Buah",
+        colSubtitle: "Kenali semua tekstur buah sebenar di ladang comel kami!",
+        colBack: "Kembali ke Menu",
+
+        profTitle: "Profil Pemain",
+        profNameLbl: "Nama Pemain",
+        profSaveBtn: "Simpan",
+        profGamesLbl: "Permainan Dimainkan",
+        profAnsweredLbl: "Soalan Dijawab",
+        profCorrectTotLbl: "Jawapan Betul",
+        profBestScoreLbl: "Skor Terbaik",
+        profAccuracyLbl: "Ketepatan Keseluruhan",
+        profActLbl: "Aktiviti Terkini",
+        profEmptyAct: "Belum ada rekod permainan.",
+        profBack: "Kembali ke Menu",
+
+        studTitle: "Profil Murid",
+        studNameLbl: "Nama Murid",
+        studClassLbl: "Kelas / Tadika",
+        studNotesLbl: "Nota Pembelajaran",
+        studSaveBtn: "Simpan Profil Murid",
+        studBack: "Kembali ke Menu",
+
+        famTitle: "Kod Keluarga",
+        famCodeLbl: "Kod Keluarga Anda",
+        famSaveBtn: "Simpan Kod",
+        famHint: "Gunakan kod ini untuk menghubungkan rekod pembelajaran prasekolah anak anda di peranti ini.",
+        famHistLbl: "Sejarah Keluarga",
+        famEmptyHist: "Belum ada rekod sejarah keluarga disimpan.",
+        famBack: "Kembali ke Menu",
+
+        quitConfirm: "Adakah anda ingin kembali ke menu utama?",
+        savedAlert: "Berjaya disimpan!"
+      },
+      en: {
+        headerTitle: "Fruit Texture Adventure",
+        homeTitle: "Fruit Texture Adventure",
+        homeSubtitle: "Let's explore a cute little fruit farm!",
+        homeSpeech: "Let's feel fruit textures!",
+        btnStartPlaying: "Start Playing",
+        btnHowToPlay: "How to Play",
+        btnProfile: "Player Profile",
+        btnFamily: "Family Code",
+        btnStudent: "Student Profile",
+        btnCollection: "Collection",
+
+        instTitle: "How to Play",
+        instSubtitle: "Find, match and discover fruit textures around the farm!",
+        instC1T: "1. Look & Feel",
+        instC1D: "Observe the fruit skin: is it smooth, dotted, bumpy, or scaly?",
+        instC2T: "2. Drag & Connect",
+        instC2D: "Drag the fruit to the correct basket or texture label using your finger.",
+        instC3T: "3. Collect Stars",
+        instC3D: "Earn 10 points for each correct match! No points are lost for mistakes.",
+        instPlay: "Play Now!",
+
+        sessionTitle: "Choose a Game",
+        sessionSubtitle: "How many fruit questions would you like to explore?",
+        session5: "5 Questions",
+        session10: "10 Questions",
+        session15: "15 Questions",
+        sessionFree: "Free Play",
+        sessionBack: "Back to Menu",
+
+        questionProgress: "Question",
+        freePlayProgress: "Free Play",
+        btnQuit: "Quit",
+        feedbackDefault: "Choose the matching fruit on the farm!",
+        feedbackCorrect: "Great job! That's correct!",
+        feedbackWrong: "Try again!",
+
+        resHeading: "Great Job!",
+        resSubheading: "Game Complete!",
+        resScore: "Score",
+        resCorrect: "Correct Answers",
+        resAccuracy: "Accuracy",
+        resAgain: "Play Again",
+        resMenu: "Back to Menu",
+
+        colTitle: "Fruit Collection",
+        colSubtitle: "Discover all real fruit textures on our cute farm!",
+        colBack: "Back to Menu",
+
+        profTitle: "Player Profile",
+        profNameLbl: "Player Name",
+        profSaveBtn: "Save",
+        profGamesLbl: "Games Played",
+        profAnsweredLbl: "Questions Answered",
+        profCorrectTotLbl: "Correct Answers",
+        profBestScoreLbl: "Best Score",
+        profAccuracyLbl: "Overall Accuracy",
+        profActLbl: "Recent Activity",
+        profEmptyAct: "No gameplay records yet.",
+        profBack: "Back to Menu",
+
+        studTitle: "Student Profile",
+        studNameLbl: "Student Name",
+        studClassLbl: "Class / Kindergarten",
+        studNotesLbl: "Learning Notes",
+        studSaveBtn: "Save Student Profile",
+        studBack: "Back to Menu",
+
+        famTitle: "Family Code",
+        famCodeLbl: "Your Family Code",
+        famSaveBtn: "Save Code",
+        famHint: "Use this code to connect your child's preschool learning progress on this device.",
+        famHistLbl: "Family History",
+        famEmptyHist: "No family history recorded yet.",
+        famBack: "Back to Menu",
+
+        quitConfirm: "Do you want to return to the main menu?",
+        savedAlert: "Saved successfully!"
+      }
+    };
+
+    function toggleLanguage() {
+      currentLang = (currentLang === 'ms') ? 'en' : 'ms';
+      document.getElementById('lang-current-label').textContent = currentLang.toUpperCase();
+      applyLanguage();
+      saveProfileToStorage();
+      playChime('pop');
+    }
+
+    function applyLanguage() {
+      const t = I18N[currentLang];
+      document.getElementById('header-title').textContent = t.headerTitle;
+      document.getElementById('home-title').textContent = t.homeTitle;
+      document.getElementById('home-subtitle').textContent = t.homeSubtitle;
+      document.getElementById('home-mascot-speech').textContent = t.homeSpeech;
+      document.getElementById('txt-start-playing').textContent = t.btnStartPlaying;
+      document.getElementById('txt-how-to-play').textContent = t.btnHowToPlay;
+      document.getElementById('txt-btn-profile').textContent = t.btnProfile;
+      document.getElementById('txt-btn-family').textContent = t.btnFamily;
+      document.getElementById('txt-btn-student').textContent = t.btnStudent;
+      document.getElementById('txt-btn-collection').textContent = t.btnCollection;
+
+      document.getElementById('inst-title').textContent = t.instTitle;
+      document.getElementById('inst-subtitle').textContent = t.instSubtitle;
+      document.getElementById('inst-card1-title').textContent = t.instC1T;
+      document.getElementById('inst-card1-desc').textContent = t.instC1D;
+      document.getElementById('inst-card2-title').textContent = t.instC2T;
+      document.getElementById('inst-card2-desc').textContent = t.instC2D;
+      document.getElementById('inst-card3-title').textContent = t.instC3T;
+      document.getElementById('inst-card3-desc').textContent = t.instC3D;
+      document.getElementById('inst-btn-play').textContent = t.instPlay;
+
+      document.getElementById('session-title').textContent = t.sessionTitle;
+      document.getElementById('session-subtitle').textContent = t.sessionSubtitle;
+      document.getElementById('session-opt-5').textContent = t.session5;
+      document.getElementById('session-opt-10').textContent = t.session10;
+      document.getElementById('session-opt-15').textContent = t.session15;
+      document.getElementById('session-opt-free').textContent = t.sessionFree;
+      document.getElementById('session-back').textContent = t.sessionBack;
+
+      document.getElementById('game-btn-quit').textContent = t.btnQuit;
+      document.getElementById('game-feedback-text').textContent = t.feedbackDefault;
+
+      document.getElementById('res-heading').textContent = t.resHeading;
+      document.getElementById('res-subheading').textContent = t.resSubheading;
+      document.getElementById('res-lbl-score').textContent = t.resScore;
+      document.getElementById('res-lbl-correct').textContent = t.resCorrect;
+      document.getElementById('res-lbl-accuracy').textContent = t.resAccuracy;
+      document.getElementById('res-btn-again').textContent = t.resAgain;
+      document.getElementById('res-btn-menu').textContent = t.resMenu;
+
+      document.getElementById('col-title').textContent = t.colTitle;
+      document.getElementById('col-subtitle').textContent = t.colSubtitle;
+      document.getElementById('col-btn-back').textContent = t.colBack;
+
+      document.getElementById('prof-title').textContent = t.profTitle;
+      document.getElementById('prof-lbl-name').textContent = t.profNameLbl;
+      document.getElementById('prof-btn-save').textContent = t.profSaveBtn;
+      document.getElementById('prof-lbl-games').textContent = t.profGamesLbl;
+      document.getElementById('prof-lbl-answered').textContent = t.profAnsweredLbl;
+      document.getElementById('prof-lbl-correct-tot').textContent = t.profCorrectTotLbl;
+      document.getElementById('prof-lbl-best-score').textContent = t.profBestScoreLbl;
+      document.getElementById('prof-lbl-accuracy-tot').textContent = t.profAccuracyLbl;
+      document.getElementById('prof-lbl-activity').textContent = t.profActLbl;
+      document.getElementById('prof-empty-activity').textContent = t.profEmptyAct;
+      document.getElementById('prof-btn-back').textContent = t.profBack;
+
+      document.getElementById('stud-title').textContent = t.studTitle;
+      document.getElementById('stud-lbl-name').textContent = t.studNameLbl;
+      document.getElementById('stud-lbl-class').textContent = t.studClassLbl;
+      document.getElementById('stud-lbl-notes').textContent = t.studNotesLbl;
+      document.getElementById('stud-btn-save').textContent = t.studSaveBtn;
+      document.getElementById('stud-btn-back').textContent = t.studBack;
+
+      document.getElementById('fam-title').textContent = t.famTitle;
+      document.getElementById('fam-lbl-code').textContent = t.famCodeLbl;
+      document.getElementById('fam-btn-save').textContent = t.famSaveBtn;
+      document.getElementById('fam-code-hint').textContent = t.famHint;
+      document.getElementById('fam-lbl-history').textContent = t.famHistLbl;
+      document.getElementById('fam-empty-history').textContent = t.famEmptyHist;
+      document.getElementById('fam-btn-back').textContent = t.famBack;
+
+      renderCollectionGrid();
+      if (gameState.activeTask) {
+        updateTaskInstruction();
+      }
+    }
+
+    /* =========================================================
+       3. FRUIT VECTOR ARTWORK DATABASE & REAL TEXTURES
+       ========================================================= */
+    const TEXTURE_DEFS = {
+      licin: { id: 'licin', name_ms: 'Licin', name_en: 'Smooth', color: '#ff7675' },
+      berbintik: { id: 'berbintik', name_ms: 'Berbintik', name_en: 'Dotted', color: '#fdcb6e' },
+      berbonjol: { id: 'berbonjol', name_ms: 'Berbonjol', name_en: 'Bumpy', color: '#00b894' },
+      kasar: { id: 'kasar', name_ms: 'Kasar', name_en: 'Rough', color: '#e17055' },
+      bersisik: { id: 'bersisik', name_ms: 'Bersisik', name_en: 'Scaly', color: '#fd79a8' },
+      berjalur: { id: 'berjalur', name_ms: 'Berjalur', name_en: 'Ridged', color: '#0984e3' },
+      ada_biji: { id: 'ada_biji', name_ms: 'Ada Biji', name_en: 'Has Seeds', color: '#6c5ce7' }
+    };
+
+    const FRUITS_DATABASE = [
+      {
+        id: 'apple',
+        name_ms: 'Epal',
+        name_en: 'Apple',
+        texture: 'licin',
+        hasSeeds: true,
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full">
+          <defs>
+            <radialGradient id="appleGlowRed" cx="35%" cy="32%" r="68%">
+              <stop offset="0%" stop-color="#ff6b6b"/>
+              <stop offset="35%" stop-color="#ee2737"/>
+              <stop offset="75%" stop-color="#ba1127"/>
+              <stop offset="100%" stop-color="#730514"/>
+            </radialGradient>
+            <linearGradient id="appleCrispLeaf" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#84ee68"/>
+              <stop offset="100%" stop-color="#24b648"/>
+            </linearGradient>
+          </defs>
+          <!-- Bayang Tanah / Ground Shadow -->
+          <ellipse cx="50" cy="89" rx="30" ry="7" fill="#1b380f" opacity="0.25"/>
+
+          <!-- Lapisan Asas Pepejal (Pencegah Telus / Non-transparent Solid Fallback Base) -->
+          <path d="M 50 28 C 42 22 28 20 19 35 C 9 52 14 74 29 86 C 38 93 46 88 50 86 C 54 88 62 93 71 86 C 86 74 91 52 81 35 C 72 20 58 22 50 28 Z" fill="#e61932"/>
+
+          <!-- Badan Epal Merah Berdimensi 3D Montok -->
+          <path d="M 50 28 C 42 22 28 20 19 35 C 9 52 14 74 29 86 C 38 93 46 88 50 86 C 54 88 62 93 71 86 C 86 74 91 52 81 35 C 72 20 58 22 50 28 Z" fill="url(#appleGlowRed)" stroke="#730514" stroke-width="2.6"/>
+
+          <!-- Rona Kuning Mentari Hangat di Pipi Epal -->
+          <ellipse cx="66" cy="52" rx="13" ry="17" fill="#ffd32a" opacity="0.28" transform="rotate(12, 66, 52)"/>
+
+          <!-- Lekukan Rongga Atas (Depression Cleft Shadow) -->
+          <ellipse cx="50" cy="29" rx="8" ry="3.5" fill="#52030d" opacity="0.6"/>
+
+          <!-- Kilauan Pantulan Cermin 3D Licin (Smooth Glassy Specular Sheen) -->
+          <path d="M 27 36 C 20 48 22 65 30 75" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" fill="none" opacity="0.65"/>
+          <ellipse cx="32" cy="38" rx="6" ry="11" fill="#ffffff" opacity="0.85" transform="rotate(-20, 32, 38)"/>
+          <circle cx="44" cy="27" r="3.2" fill="#ffffff" opacity="0.75"/>
+          <circle cx="28" cy="74" r="2.2" fill="#ffffff" opacity="0.5"/>
+
+          <!-- Tangkai Kayu Coklat Melengkung -->
+          <path d="M 50 28 Q 47 13 54 8 Q 58 8 56 16 C 53 22 50 28 50 28 Z" fill="#6d4c41" stroke="#3d241c" stroke-width="1.2"/>
+
+          <!-- Daun Hijau Segar Rimbun & Urat Daun Halus -->
+          <path d="M 52 16 C 68 9 75 17 65 25 C 57 26 53 20 52 16 Z" fill="url(#appleCrispLeaf)" stroke="#1a7c3e" stroke-width="1.5"/>
+          <path d="M 53 17 Q 61 17 64 21" stroke="#ffffff" stroke-width="1.2" fill="none" stroke-linecap="round" opacity="0.65"/>
+        </svg>`
+      },
+      {
+        id: 'strawberry',
+        name_ms: 'Strawberi',
+        name_en: 'Strawberry',
+        texture: 'berbintik',
+        hasSeeds: true,
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full">
+          <defs>
+            <radialGradient id="strawBodyGrad" cx="35%" cy="30%" r="65%">
+              <stop offset="0%" stop-color="#ff6b81"/>
+              <stop offset="40%" stop-color="#ff385c"/>
+              <stop offset="85%" stop-color="#d61a3c"/>
+              <stop offset="100%" stop-color="#9e0c25"/>
+            </radialGradient>
+            <linearGradient id="strawLeafGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#7bed9f"/>
+              <stop offset="100%" stop-color="#2ed573"/>
+            </linearGradient>
+          </defs>
+          <!-- Contact Shadow -->
+          <ellipse cx="50" cy="90" rx="28" ry="7" fill="#1b380f" opacity="0.25"/>
+          <!-- Plump Juicy Strawberry Body -->
+          <path d="M 50 29 C 78 29 86 52 74 73 C 65 87 54 90 50 90 C 46 90 35 87 26 73 C 14 52 22 29 50 29 Z" fill="url(#strawBodyGrad)" stroke="#a11528" stroke-width="2.5"/>
+          <!-- 3D Gloss Sheen -->
+          <path d="M 32 38 C 26 48 26 62 34 72" stroke="#ffffff" stroke-width="4" stroke-linecap="round" fill="none" opacity="0.5"/>
+          <ellipse cx="36" cy="40" rx="5" ry="3" fill="#ffffff" opacity="0.75" transform="rotate(-20, 36, 40)"/>
+          <!-- Golden Seed Pits (Berbintik / Dotted) -->
+          <g fill="#ffeaa7" stroke="#9e0c25" stroke-width="0.8">
+            <ellipse cx="40" cy="42" rx="2.2" ry="3.2" transform="rotate(6, 40, 42)"/>
+            <ellipse cx="50" cy="40" rx="2.2" ry="3.2"/>
+            <ellipse cx="60" cy="42" rx="2.2" ry="3.2" transform="rotate(-6, 60, 42)"/>
+            <ellipse cx="32" cy="52" rx="2" ry="3" transform="rotate(12, 32, 52)"/>
+            <ellipse cx="43" cy="52" rx="2.2" ry="3.2" transform="rotate(4, 43, 52)"/>
+            <ellipse cx="57" cy="52" rx="2.2" ry="3.2" transform="rotate(-4, 57, 52)"/>
+            <ellipse cx="68" cy="52" rx="2.2" ry="3.2" transform="rotate(-12, 68, 52)"/>
+            <ellipse cx="36" cy="64" rx="2" ry="3" transform="rotate(10, 36, 64)"/>
+            <ellipse cx="47" cy="64" rx="2.2" ry="3.2" transform="rotate(2, 47, 64)"/>
+            <ellipse cx="58" cy="64" rx="2.2" ry="3.2" transform="rotate(-5, 58, 64)"/>
+            <ellipse cx="66" cy="63" rx="1.8" ry="2.8" transform="rotate(-10, 66, 63)"/>
+            <ellipse cx="44" cy="74" rx="1.8" ry="2.8" transform="rotate(4, 44, 74)"/>
+            <ellipse cx="54" cy="74" rx="1.8" ry="2.8" transform="rotate(-4, 54, 74)"/>
+            <ellipse cx="50" cy="82" rx="1.6" ry="2.4"/>
+          </g>
+          <!-- Chunky Green Calyx Leaves -->
+          <path d="M 50 30 C 44 19 31 17 24 23 C 28 32 38 34 46 32 Z" fill="url(#strawLeafGrad)" stroke="#1e824c" stroke-width="1.8"/>
+          <path d="M 50 30 C 56 19 69 17 76 23 C 72 32 62 34 54 32 Z" fill="url(#strawLeafGrad)" stroke="#1e824c" stroke-width="1.8"/>
+          <path d="M 50 32 C 40 28 34 38 32 44 C 40 42 46 36 50 32 Z" fill="url(#strawLeafGrad)" stroke="#1e824c" stroke-width="1.8"/>
+          <path d="M 50 32 C 60 28 66 38 68 44 C 60 42 54 36 50 32 Z" fill="url(#strawLeafGrad)" stroke="#1e824c" stroke-width="1.8"/>
+          <path d="M 50 30 C 46 16 54 16 50 28 Z" fill="#2ed573" stroke="#1e824c" stroke-width="1.8"/>
+          <!-- Curved Wooden Stalk -->
+          <path d="M 50 24 Q 45 10 52 8 Q 56 8 53 23" fill="#6d4c41" stroke="#4a3028" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>`
+      },
+      {
+        id: 'orange',
+        name_ms: 'Oren',
+        name_en: 'Orange',
+        texture: 'berbintik',
+        hasSeeds: true,
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full">
+          <ellipse cx="50" cy="86" rx="30" ry="8" fill="#3b7222" opacity="0.25"/>
+          <circle cx="50" cy="52" r="34" fill="#ffa502" stroke="#e67e22" stroke-width="3"/>
+          <!-- Fine pitted citrus skin texture -->
+          <g fill="#d35400" opacity="0.7">
+            <circle cx="35" cy="42" r="1.5"/><circle cx="48" cy="38" r="1.5"/><circle cx="62" cy="42" r="1.5"/>
+            <circle cx="30" cy="55" r="1.5"/><circle cx="44" cy="52" r="1.5"/><circle cx="68" cy="55" r="1.5"/>
+            <circle cx="38" cy="68" r="1.5"/><circle cx="52" cy="66" r="1.5"/><circle cx="62" cy="68" r="1.5"/>
+          </g>
+          <ellipse cx="38" cy="36" rx="10" ry="6" fill="#ffffff" opacity="0.45" transform="rotate(-20, 38, 36)"/>
+          <circle cx="50" cy="20" r="4" fill="#2ed573" stroke="#218c74" stroke-width="1.5"/>
+        </svg>`
+      },
+      {
+        id: 'watermelon',
+        name_ms: 'Tembikai',
+        name_en: 'Watermelon',
+        texture: 'berjalur',
+        hasSeeds: true,
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full">
+          <defs>
+            <radialGradient id="melonBodyGrad" cx="35%" cy="30%" r="72%">
+              <stop offset="0%" stop-color="#bbf7a7"/>
+              <stop offset="35%" stop-color="#55d472"/>
+              <stop offset="80%" stop-color="#1e993e"/>
+              <stop offset="100%" stop-color="#0e5320"/>
+            </radialGradient>
+            <clipPath id="chibiMelonClip">
+              <ellipse cx="50" cy="56" rx="38" ry="33"/>
+            </clipPath>
+          </defs>
+          <!-- Ground Shadow -->
+          <ellipse cx="50" cy="90" rx="36" ry="8" fill="#1b380f" opacity="0.25"/>
+          <!-- Chubby Rounded Watermelon Body -->
+          <ellipse cx="50" cy="56" rx="38" ry="33" fill="url(#melonBodyGrad)" stroke="#0e5320" stroke-width="2.8"/>
+          <!-- Distinctive Dark Wavy Jagged Stripes (Tekstur Berjalur Nyata) -->
+          <g clip-path="url(#chibiMelonClip)" fill="#073a16">
+            <path d="M 16 32 Q 22 40 17 50 Q 23 60 17 70 Q 22 78 18 86 L 12 84 Q 15 74 11 64 Q 16 52 11 40 Z"/>
+            <path d="M 31 25 Q 38 36 31 50 Q 39 62 32 75 Q 38 84 32 90 L 26 88 Q 30 76 25 64 Q 31 48 24 34 Z"/>
+            <path d="M 48 24 Q 55 38 48 52 Q 56 66 49 79 Q 55 86 49 92 L 43 92 Q 48 80 43 67 Q 50 51 43 33 Z"/>
+            <path d="M 66 25 Q 73 38 67 52 Q 74 65 67 78 Q 72 86 68 91 L 62 89 Q 66 77 61 63 Q 68 47 61 33 Z"/>
+            <path d="M 81 32 Q 87 42 82 53 Q 88 64 82 74 Q 86 80 83 85 L 77 83 Q 81 72 76 61 Q 82 48 76 38 Z"/>
+          </g>
+          <!-- 3D Curved Light Reflection Arc -->
+          <ellipse cx="35" cy="40" rx="14" ry="7" fill="#ffffff" opacity="0.5" transform="rotate(-25, 35, 40)"/>
+          <ellipse cx="31" cy="38" rx="6" ry="3" fill="#ffffff" opacity="0.8" transform="rotate(-25, 31, 38)"/>
+          <!-- Woody Top Stem & Cute Spiraling Curly Vine Tendril -->
+          <path d="M 50 24 Q 48 13 53 9 Q 57 8 54 23" fill="#5c3d2e" stroke="#3d2419" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M 53 14 Q 63 7 67 15 Q 71 23 64 24 Q 60 23 63 17" fill="none" stroke="#2ed573" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>`
+      },
+      {
+        id: 'dragonfruit',
+        name_ms: 'Buah Naga',
+        name_en: 'Dragon Fruit',
+        texture: 'bersisik',
+        hasSeeds: true,
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full">
+          <defs>
+            <radialGradient id="dragonBodyGrad" cx="35%" cy="30%" r="72%">
+              <stop offset="0%" stop-color="#ff76ac"/>
+              <stop offset="40%" stop-color="#ff2d75"/>
+              <stop offset="85%" stop-color="#d6145a"/>
+              <stop offset="100%" stop-color="#8c0738"/>
+            </radialGradient>
+            <linearGradient id="dragonScaleGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+              <stop offset="0%" stop-color="#e0125c"/>
+              <stop offset="35%" stop-color="#55efc4"/>
+              <stop offset="100%" stop-color="#00b894"/>
+            </linearGradient>
+            <linearGradient id="dragonCrownGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+              <stop offset="0%" stop-color="#ff2d75"/>
+              <stop offset="40%" stop-color="#65bf26"/>
+              <stop offset="100%" stop-color="#2ed573"/>
+            </linearGradient>
+          </defs>
+          <!-- Ground Shadow -->
+          <ellipse cx="50" cy="91" rx="27" ry="7" fill="#1b380f" opacity="0.25"/>
+
+          <!-- Crown Leaves on Top (Flame Crest) -->
+          <g fill="url(#dragonCrownGrad)" stroke="#0e5320" stroke-width="1.5">
+            <path d="M 50 25 C 44 14 36 8 28 10 C 35 18 42 22 47 28 Z"/>
+            <path d="M 50 25 C 56 14 64 8 72 10 C 65 18 58 22 53 28 Z"/>
+            <path d="M 50 25 C 46 12 48 3 50 0 C 52 3 54 12 50 25 Z"/>
+          </g>
+
+          <!-- Plump Oval Vibrant Magenta Body -->
+          <ellipse cx="50" cy="58" rx="29" ry="32" fill="url(#dragonBodyGrad)" stroke="#7a0530" stroke-width="2.6"/>
+
+          <!-- Dimensional Overlapping Scales / Bracts (Tekstur Bersisik yang Nyata & Comel) -->
+          <!-- Row 1 (Top Shoulders) -->
+          <path d="M 28 42 C 16 38 12 28 18 20 C 26 27 28 36 33 44 Z" fill="url(#dragonScaleGrad)" stroke="#145a32" stroke-width="1.5"/>
+          <path d="M 72 42 C 84 38 88 28 82 20 C 74 27 72 36 67 44 Z" fill="url(#dragonScaleGrad)" stroke="#145a32" stroke-width="1.5"/>
+          <path d="M 44 38 C 42 28 47 22 50 18 C 53 22 58 28 56 38 Z" fill="url(#dragonScaleGrad)" stroke="#145a32" stroke-width="1.5"/>
+
+          <!-- Row 2 (Mid Flanks) -->
+          <path d="M 23 58 C 10 55 6 44 12 36 C 20 42 24 50 28 59 Z" fill="url(#dragonScaleGrad)" stroke="#145a32" stroke-width="1.5"/>
+          <path d="M 77 58 C 90 55 94 44 88 36 C 80 42 76 50 72 59 Z" fill="url(#dragonScaleGrad)" stroke="#145a32" stroke-width="1.5"/>
+          <path d="M 37 53 C 33 43 40 37 44 34 C 47 40 45 48 42 54 Z" fill="url(#dragonScaleGrad)" stroke="#145a32" stroke-width="1.5"/>
+          <path d="M 63 53 C 67 43 60 37 56 34 C 53 40 55 48 58 54 Z" fill="url(#dragonScaleGrad)" stroke="#145a32" stroke-width="1.5"/>
+
+          <!-- Row 3 (Center & Lower Belly) -->
+          <path d="M 26 73 C 14 71 12 60 18 53 C 24 59 28 65 31 74 Z" fill="url(#dragonScaleGrad)" stroke="#145a32" stroke-width="1.5"/>
+          <path d="M 74 73 C 86 71 88 60 82 53 C 76 59 72 65 69 74 Z" fill="url(#dragonScaleGrad)" stroke="#145a32" stroke-width="1.5"/>
+          <path d="M 43 68 C 39 58 46 51 50 48 C 54 51 61 58 57 68 Z" fill="url(#dragonScaleGrad)" stroke="#145a32" stroke-width="1.5"/>
+
+          <!-- Row 4 (Base Scales) -->
+          <path d="M 36 84 C 26 84 25 76 30 71 C 36 75 39 80 41 85 Z" fill="url(#dragonScaleGrad)" stroke="#145a32" stroke-width="1.5"/>
+          <path d="M 64 84 C 74 84 75 76 70 71 C 64 75 61 80 59 85 Z" fill="url(#dragonScaleGrad)" stroke="#145a32" stroke-width="1.5"/>
+          <path d="M 46 87 C 44 80 48 76 50 74 C 52 76 56 80 54 87 Z" fill="url(#dragonScaleGrad)" stroke="#145a32" stroke-width="1.5"/>
+
+          <!-- 3D Gloss Highlight Arc -->
+          <path d="M 32 40 C 26 50 26 64 34 74" stroke="#ffffff" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.45"/>
+          <ellipse cx="36" cy="42" rx="4" ry="8" fill="#ffffff" opacity="0.65" transform="rotate(-15, 36, 42)"/>
+        </svg>`
+      },
+      {
+        id: 'pineapple',
+        name_ms: 'Nanas',
+        name_en: 'Pineapple',
+        texture: 'bersisik',
+        hasSeeds: false,
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full">
+          <defs>
+            <radialGradient id="pineBodyGrad" cx="38%" cy="35%" r="65%">
+              <stop offset="0%" stop-color="#fff07c"/>
+              <stop offset="45%" stop-color="#fbc531"/>
+              <stop offset="85%" stop-color="#e67e22"/>
+              <stop offset="100%" stop-color="#b85608"/>
+            </radialGradient>
+            <linearGradient id="pineLeafFront" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#7bed9f"/>
+              <stop offset="100%" stop-color="#2ed573"/>
+            </linearGradient>
+            <linearGradient id="pineLeafBack" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#26af5f"/>
+              <stop offset="100%" stop-color="#146d2c"/>
+            </linearGradient>
+          </defs>
+          <!-- Ground Shadow -->
+          <ellipse cx="50" cy="91" rx="27" ry="7" fill="#1b380f" opacity="0.25"/>
+          
+          <!-- Crown Leaves - Back Layer -->
+          <g fill="url(#pineLeafBack)" stroke="#0e5320" stroke-width="1.8" stroke-linejoin="round">
+            <path d="M 50 36 C 42 22 30 16 18 18 C 28 26 36 32 44 38 Z"/>
+            <path d="M 50 36 C 58 22 70 16 82 18 C 72 26 64 32 56 38 Z"/>
+            <path d="M 50 36 C 46 16 48 4 50 0 C 52 4 54 16 50 36 Z"/>
+          </g>
+
+          <!-- Plump Oval Pineapple Body (Bersisik) -->
+          <ellipse cx="50" cy="62" rx="29" ry="31" fill="url(#pineBodyGrad)" stroke="#8e3e06" stroke-width="2.8"/>
+
+          <!-- Crown Leaves - Front Layer -->
+          <g fill="url(#pineLeafFront)" stroke="#1a7c3e" stroke-width="1.8" stroke-linejoin="round">
+            <path d="M 50 38 C 44 26 36 20 26 24 C 34 32 40 37 46 41 Z"/>
+            <path d="M 50 38 C 56 26 64 20 74 24 C 66 32 60 37 54 41 Z"/>
+            <path d="M 50 38 C 45 22 47 10 50 8 C 53 10 55 22 50 38 Z"/>
+          </g>
+
+          <!-- 3D Puffy Diamond Scales (Bersisik / Scaly Texture) -->
+          <!-- Row 1 (top) -->
+          <g fill="#f19066" stroke="#963c04" stroke-width="1.5">
+            <path d="M 42 41 L 50 36 L 58 41 L 50 46 Z"/>
+          </g>
+          <!-- Row 2 -->
+          <g stroke="#963c04" stroke-width="1.5">
+            <path d="M 30 49 L 39 43 L 47 49 L 38 54 Z" fill="#f8a532"/>
+            <path d="M 53 49 L 61 43 L 70 49 L 62 54 Z" fill="#f8a532"/>
+          </g>
+          <!-- Row 3 (center wide) -->
+          <g stroke="#963c04" stroke-width="1.5">
+            <path d="M 23 59 L 32 53 L 41 59 L 32 65 Z" fill="#f5971a"/>
+            <path d="M 41 59 L 50 53 L 59 59 L 50 65 Z" fill="#fbc531"/>
+            <path d="M 59 59 L 68 53 L 77 59 L 68 65 Z" fill="#f5971a"/>
+          </g>
+          <!-- Row 4 -->
+          <g stroke="#963c04" stroke-width="1.5">
+            <path d="M 31 70 L 40 64 L 49 70 L 40 76 Z" fill="#e67e22"/>
+            <path d="M 51 70 L 60 64 L 69 70 L 60 76 Z" fill="#e67e22"/>
+          </g>
+          <!-- Row 5 (bottom) -->
+          <g stroke="#963c04" stroke-width="1.5">
+            <path d="M 42 80 L 50 74 L 58 80 L 50 86 Z" fill="#d35400"/>
+          </g>
+          
+          <!-- Scale Eye Tips (Spiky Dots on each scale) -->
+          <g fill="#783404">
+            <polygon points="50,40 48,43 52,43"/>
+            <polygon points="38,48 36,51 40,51"/>
+            <polygon points="62,48 60,51 64,51"/>
+            <polygon points="32,58 30,61 34,61"/>
+            <polygon points="50,58 48,61 52,61"/>
+            <polygon points="68,58 66,61 70,61"/>
+            <polygon points="40,69 38,72 42,72"/>
+            <polygon points="60,69 58,72 62,72"/>
+            <polygon points="50,79 48,82 52,82"/>
+          </g>
+
+          <!-- 3D Curved Light Reflection -->
+          <ellipse cx="33" cy="52" rx="7" ry="15" fill="#ffffff" opacity="0.38" transform="rotate(-20, 33, 52)"/>
+        </svg>`
+      },
+      {
+        id: 'rambutan',
+        name_ms: 'Rambutan',
+        name_en: 'Rambutan',
+        texture: 'kasar',
+        hasSeeds: true,
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full">
+          <defs>
+            <radialGradient id="rambutanBodyGrad" cx="35%" cy="32%" r="68%">
+              <stop offset="0%" stop-color="#ff7675"/>
+              <stop offset="35%" stop-color="#ee2737"/>
+              <stop offset="75%" stop-color="#ba1127"/>
+              <stop offset="100%" stop-color="#730514"/>
+            </radialGradient>
+            <linearGradient id="spineYellowGreen" x1="0%" y1="100%" x2="0%" y2="0%">
+              <stop offset="0%" stop-color="#d63031"/>
+              <stop offset="45%" stop-color="#fbc531"/>
+              <stop offset="100%" stop-color="#2ed573"/>
+            </linearGradient>
+            <linearGradient id="rambutanStemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#835832"/>
+              <stop offset="100%" stop-color="#4d2f16"/>
+            </linearGradient>
+            <linearGradient id="rambutanLeafGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#7bed9f"/>
+              <stop offset="100%" stop-color="#1e824c"/>
+            </linearGradient>
+          </defs>
+          <!-- Bayang Tanah / Ground Shadow -->
+          <ellipse cx="50" cy="90" rx="30" ry="7" fill="#1b380f" opacity="0.25"/>
+
+          <!-- Lapisan Bulu Belakang / Back Spines (Depth Layer) -->
+          <g stroke="#e17055" stroke-width="2.6" stroke-linecap="round" fill="none" opacity="0.75">
+            <path d="M 40 28 Q 32 14 36 8"/>
+            <path d="M 60 28 Q 68 14 65 7"/>
+            <path d="M 28 38 Q 14 30 18 20"/>
+            <path d="M 72 38 Q 86 30 84 20"/>
+            <path d="M 22 52 Q 8 50 10 40"/>
+            <path d="M 78 52 Q 92 50 90 40"/>
+            <path d="M 25 66 Q 10 72 14 82"/>
+            <path d="M 75 66 Q 90 72 86 82"/>
+            <path d="M 38 78 Q 30 92 35 96"/>
+            <path d="M 62 78 Q 70 92 65 96"/>
+          </g>
+
+          <!-- Asas Pepejal Epik Rambutan (Pencegah Telus) -->
+          <circle cx="50" cy="54" r="28" fill="#c0392b"/>
+
+          <!-- Badan Bulat Montok Rambutan (Vibrant Textured Sphere) -->
+          <circle cx="50" cy="54" r="28" fill="url(#rambutanBodyGrad)" stroke="#730514" stroke-width="2.5"/>
+
+          <!-- Rona Keemasan Ringan di Pipi Badan Rambutan -->
+          <ellipse cx="42" cy="46" rx="14" ry="12" fill="#ffd32a" opacity="0.25"/>
+
+          <!-- Rambut Lembut Melengkung Luar (Curled Fleshy Spines / Rambut Berhujung Hijau-Kuning) -->
+          <g stroke-linecap="round" fill="none">
+            <!-- Lapisan Duri Merah-Kuning-Hijau Realistik (Tekstur Kasar/Berbulu) -->
+            <path d="M 50 26 Q 48 10 42 6" stroke="url(#spineYellowGreen)" stroke-width="3"/>
+            <circle cx="42" cy="6" r="1.5" fill="#2ed573"/>
+
+            <path d="M 35 30 Q 22 18 19 12" stroke="url(#spineYellowGreen)" stroke-width="3"/>
+            <circle cx="19" cy="12" r="1.5" fill="#2ed573"/>
+
+            <path d="M 65 30 Q 78 18 81 12" stroke="url(#spineYellowGreen)" stroke-width="3"/>
+            <circle cx="81" cy="12" r="1.5" fill="#2ed573"/>
+
+            <path d="M 24 42 Q 8 36 6 30" stroke="url(#spineYellowGreen)" stroke-width="3"/>
+            <circle cx="6" cy="30" r="1.5" fill="#2ed573"/>
+
+            <path d="M 76 42 Q 92 36 94 30" stroke="url(#spineYellowGreen)" stroke-width="3"/>
+            <circle cx="94" cy="30" r="1.5" fill="#2ed573"/>
+
+            <path d="M 22 56 Q 6 56 5 65" stroke="url(#spineYellowGreen)" stroke-width="3"/>
+            <circle cx="5" cy="65" r="1.5" fill="#2ed573"/>
+
+            <path d="M 78 56 Q 94 56 95 65" stroke="url(#spineYellowGreen)" stroke-width="3"/>
+            <circle cx="95" cy="65" r="1.5" fill="#2ed573"/>
+
+            <path d="M 26 70 Q 12 78 16 88" stroke="url(#spineYellowGreen)" stroke-width="3"/>
+            <circle cx="16" cy="88" r="1.5" fill="#2ed573"/>
+
+            <path d="M 74 70 Q 88 78 84 88" stroke="url(#spineYellowGreen)" stroke-width="3"/>
+            <circle cx="84" cy="88" r="1.5" fill="#2ed573"/>
+
+            <path d="M 38 80 Q 30 94 38 98" stroke="url(#spineYellowGreen)" stroke-width="3"/>
+            <circle cx="38" cy="98" r="1.5" fill="#2ed573"/>
+
+            <path d="M 62 80 Q 70 94 62 98" stroke="url(#spineYellowGreen)" stroke-width="3"/>
+            <circle cx="62" cy="98" r="1.5" fill="#2ed573"/>
+
+            <path d="M 50 82 Q 52 96 48 99" stroke="url(#spineYellowGreen)" stroke-width="3"/>
+            <circle cx="48" cy="99" r="1.5" fill="#2ed573"/>
+          </g>
+
+          <!-- Duri Lembut Pada Permukaan Hadapan Badan (Surface Fur Texture) -->
+          <g stroke="url(#spineYellowGreen)" stroke-width="2.6" stroke-linecap="round" fill="none">
+            <path d="M 40 38 Q 32 30 36 24"/>
+            <path d="M 60 38 Q 66 28 62 22"/>
+            <path d="M 32 50 Q 24 44 28 38"/>
+            <path d="M 68 50 Q 76 44 72 38"/>
+            <path d="M 44 54 Q 38 46 42 42"/>
+            <path d="M 56 54 Q 62 46 58 42"/>
+            <path d="M 36 65 Q 28 60 32 54"/>
+            <path d="M 64 65 Q 72 60 68 54"/>
+            <path d="M 50 68 Q 44 60 50 56"/>
+          </g>
+
+          <!-- Pantulan Kilauan Licin Halus pada Lengkung Badan -->
+          <ellipse cx="36" cy="42" rx="7" ry="11" fill="#ffffff" opacity="0.35" transform="rotate(-25, 36, 42)"/>
+
+          <!-- Tangkai Kayu Kecil di Atas & Daun Comel -->
+          <path d="M 50 26 Q 52 14 58 10 Q 61 10 58 17 Q 54 22 50 26 Z" fill="url(#rambutanStemGrad)" stroke="#3d241c" stroke-width="1.2"/>
+          <path d="M 56 16 C 68 10 74 18 64 24 C 58 25 55 20 56 16 Z" fill="url(#rambutanLeafGrad)" stroke="#1a7c3e" stroke-width="1.5"/>
+          <path d="M 57 17 Q 63 17 65 21" stroke="#b8e994" stroke-width="1" fill="none"/>
+        </svg>`
+      },
+      {
+        id: 'papaya_cut',
+        name_ms: 'Betik Terbelah',
+        name_en: 'Cut Papaya',
+        texture: 'ada_biji',
+        hasSeeds: true,
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full">
+          <defs>
+            <radialGradient id="papayaRindGrad" cx="35%" cy="30%" r="70%">
+              <stop offset="0%" stop-color="#b8e994"/>
+              <stop offset="50%" stop-color="#78c948"/>
+              <stop offset="100%" stop-color="#245109"/>
+            </radialGradient>
+            <radialGradient id="papayaFleshGrad" cx="35%" cy="35%" r="65%">
+              <stop offset="0%" stop-color="#ffd32a"/>
+              <stop offset="35%" stop-color="#ff9f1a"/>
+              <stop offset="75%" stop-color="#ff5224"/>
+              <stop offset="100%" stop-color="#c0392b"/>
+            </radialGradient>
+            <radialGradient id="papayaCavityGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#5c1906"/>
+              <stop offset="85%" stop-color="#3b0f02"/>
+              <stop offset="100%" stop-color="#1f0701"/>
+            </radialGradient>
+          </defs>
+          <!-- Ground Shadow -->
+          <ellipse cx="50" cy="90" rx="32" ry="7" fill="#1b380f" opacity="0.25"/>
+
+          <!-- Tilted Chibi Papaya Half Form (12 deg angle) -->
+          <g transform="rotate(-8, 50, 55)">
+            <!-- Outer Greenish Skin Rind Thickness -->
+            <path d="M 48 16 C 66 16 82 34 82 58 C 82 80 66 92 48 92 C 30 92 14 80 14 58 C 14 34 30 16 48 16 Z" fill="url(#papayaRindGrad)" stroke="#1a4708" stroke-width="2.5"/>
+
+            <!-- Lime-Yellow Intermediate Rind Border -->
+            <path d="M 48 20 C 63 20 78 36 78 58 C 78 77 63 88 48 88 C 33 88 18 77 18 58 C 18 36 33 20 48 20 Z" fill="#dff9fb" stroke="#fed330" stroke-width="2"/>
+
+            <!-- Delicious Juicy Salmon-Orange Papaya Flesh -->
+            <path d="M 48 22 C 61 22 75 37 75 58 C 75 75 61 86 48 86 C 35 86 21 75 21 58 C 21 37 35 22 48 22 Z" fill="url(#papayaFleshGrad)"/>
+
+            <!-- 3D Juicy Curved Gloss Line on Flesh -->
+            <path d="M 28 36 C 24 45 24 64 30 74" stroke="#ffffff" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.4"/>
+
+            <!-- Fluted Seed Cavity -->
+            <ellipse cx="48" cy="56" rx="14" ry="22" fill="url(#papayaCavityGrad)" stroke="#4a1505" stroke-width="1.8"/>
+
+            <!-- Glossy Black Pearls: Shiny Papaya Seeds with White Highlights (Tekstur Ada Biji Sangat Jelas) -->
+            <g fill="#1a1c20" stroke="#000000" stroke-width="0.7">
+              <!-- Central seed bed -->
+              <circle cx="44" cy="42" r="3.2"/><circle cx="52" cy="42" r="3.2"/>
+              <circle cx="48" cy="46" r="3.4"/><circle cx="42" cy="48" r="3.3"/>
+              <circle cx="54" cy="48" r="3.3"/><circle cx="48" cy="52" r="3.5"/>
+              <circle cx="43" cy="55" r="3.4"/><circle cx="53" cy="55" r="3.4"/>
+              <circle cx="48" cy="59" r="3.5"/><circle cx="42" cy="62" r="3.3"/>
+              <circle cx="54" cy="62" r="3.3"/><circle cx="48" cy="66" r="3.4"/>
+              <circle cx="45" cy="70" r="3.1"/><circle cx="51" cy="70" r="3.1"/>
+            </g>
+
+            <!-- Glistening Jewel Specular Dots on Seeds -->
+            <g fill="#ffffff" opacity="0.85">
+              <circle cx="43" cy="41" r="1.1"/><circle cx="51" cy="41" r="1.1"/>
+              <circle cx="47" cy="45" r="1.2"/><circle cx="41" cy="47" r="1.1"/>
+              <circle cx="53" cy="47" r="1.1"/><circle cx="47" cy="51" r="1.2"/>
+              <circle cx="42" cy="54" r="1.1"/><circle cx="52" cy="54" r="1.1"/>
+              <circle cx="47" cy="58" r="1.2"/><circle cx="41" cy="61" r="1.1"/>
+              <circle cx="53" cy="61" r="1.1"/><circle cx="47" cy="65" r="1.2"/>
+              <circle cx="44" cy="69" r="1"/><circle cx="50" cy="69" r="1"/>
+            </g>
+
+            <!-- Small woody stem at top pole -->
+            <path d="M 48 16 Q 47 10 50 7" stroke="#4a3028" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          </g>
+        </svg>`
+      },
+      {
+        id: 'banana',
+        name_ms: 'Pisang',
+        name_en: 'Banana',
+        texture: 'licin',
+        hasSeeds: false,
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full">
+          <ellipse cx="50" cy="88" rx="32" ry="6" fill="#3b7222" opacity="0.25"/>
+          <path d="M 22 36 C 30 76 68 82 84 56 C 80 72 45 70 28 38 Z" fill="#fed330" stroke="#f39c12" stroke-width="3"/>
+          <!-- Ridged smooth face -->
+          <path d="M 26 36 C 34 68 62 76 82 56" stroke="#fbc531" stroke-width="4" fill="none"/>
+          <ellipse cx="48" cy="64" rx="12" ry="3" fill="#ffffff" opacity="0.45" transform="rotate(-15, 48, 64)"/>
+          <circle cx="21" cy="34" r="3.5" fill="#4b6584"/>
+          <circle cx="85" cy="55" r="3" fill="#4b6584"/>
+        </svg>`
+      },
+      {
+        id: 'custard_apple',
+        name_ms: 'Nona / Sekaya',
+        name_en: 'Custard Apple',
+        texture: 'berbonjol',
+        hasSeeds: true,
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full">
+          <defs>
+            <radialGradient id="nonaBaseGrad" cx="35%" cy="30%" r="70%">
+              <stop offset="0%" stop-color="#b8f2a2"/>
+              <stop offset="45%" stop-color="#78c948"/>
+              <stop offset="85%" stop-color="#468817"/>
+              <stop offset="100%" stop-color="#245109"/>
+            </radialGradient>
+            <radialGradient id="nonaKnobGrad" cx="30%" cy="25%" r="70%">
+              <stop offset="0%" stop-color="#e2fab8"/>
+              <stop offset="50%" stop-color="#8fd754"/>
+              <stop offset="100%" stop-color="#559920"/>
+            </radialGradient>
+          </defs>
+          <!-- Ground Shadow -->
+          <ellipse cx="50" cy="89" rx="27" ry="7" fill="#1b380f" opacity="0.25"/>
+
+          <!-- Chubby Heart-Egg Base Body -->
+          <path d="M 50 26 C 24 26 16 50 22 70 C 27 84 43 89 50 89 C 57 89 73 84 78 70 C 84 50 76 26 50 26 Z" fill="url(#nonaBaseGrad)" stroke="#27560a" stroke-width="2.6"/>
+
+          <!-- 3D Pillowy Rounded Knobs (Berbonjol / Bumpy) -->
+          <!-- Top Row -->
+          <ellipse cx="36" cy="36" rx="9" ry="7" fill="url(#nonaKnobGrad)" stroke="#27560a" stroke-width="1.8"/>
+          <ellipse cx="50" cy="33" rx="8" ry="7" fill="url(#nonaKnobGrad)" stroke="#27560a" stroke-width="1.8"/>
+          <ellipse cx="64" cy="36" rx="9" ry="7" fill="url(#nonaKnobGrad)" stroke="#27560a" stroke-width="1.8"/>
+
+          <!-- Second Row -->
+          <ellipse cx="25" cy="46" rx="8" ry="7.5" fill="url(#nonaKnobGrad)" stroke="#27560a" stroke-width="1.8"/>
+          <ellipse cx="39" cy="47" rx="9.5" ry="8" fill="url(#nonaKnobGrad)" stroke="#27560a" stroke-width="1.8"/>
+          <ellipse cx="57" cy="46" rx="9.5" ry="8" fill="url(#nonaKnobGrad)" stroke="#27560a" stroke-width="1.8"/>
+          <ellipse cx="73" cy="47" rx="8.5" ry="7.5" fill="url(#nonaKnobGrad)" stroke="#27560a" stroke-width="1.8"/>
+
+          <!-- Third Row (Center) -->
+          <ellipse cx="28" cy="60" rx="9" ry="8" fill="url(#nonaKnobGrad)" stroke="#27560a" stroke-width="1.8"/>
+          <ellipse cx="46" cy="59" rx="10" ry="8.5" fill="url(#nonaKnobGrad)" stroke="#27560a" stroke-width="1.8"/>
+          <ellipse cx="65" cy="59" rx="9.5" ry="8" fill="url(#nonaKnobGrad)" stroke="#27560a" stroke-width="1.8"/>
+
+          <!-- Fourth Row -->
+          <ellipse cx="35" cy="71" rx="8.5" ry="7.5" fill="url(#nonaKnobGrad)" stroke="#27560a" stroke-width="1.8"/>
+          <ellipse cx="52" cy="71" rx="9" ry="7.5" fill="url(#nonaKnobGrad)" stroke="#27560a" stroke-width="1.8"/>
+          <ellipse cx="66" cy="70" rx="7.5" ry="7" fill="url(#nonaKnobGrad)" stroke="#27560a" stroke-width="1.8"/>
+
+          <!-- Tip Knobs (Bottom) -->
+          <ellipse cx="44" cy="80" rx="6.5" ry="5.5" fill="url(#nonaKnobGrad)" stroke="#27560a" stroke-width="1.6"/>
+          <ellipse cx="54" cy="80" rx="6.5" ry="5.5" fill="url(#nonaKnobGrad)" stroke="#27560a" stroke-width="1.6"/>
+
+          <!-- Soft Highlights on Knobs for Touch/Bumpy Look -->
+          <g fill="#ffffff" opacity="0.6">
+            <circle cx="34" cy="34" r="2.2"/>
+            <circle cx="48" cy="31" r="2"/>
+            <circle cx="37" cy="45" r="2.5"/>
+            <circle cx="55" cy="44" r="2.5"/>
+            <circle cx="44" cy="57" r="2.6"/>
+            <circle cx="33" cy="69" r="2"/>
+            <circle cx="50" cy="69" r="2"/>
+          </g>
+
+          <!-- Woody Stem & Cute Leaf -->
+          <path d="M 50 26 C 50 14 56 12 58 10 Q 61 9 60 16 C 56 21 54 26 50 26 Z" fill="#6d4c41" stroke="#422921" stroke-width="1.5"/>
+          <path d="M 56 17 C 68 12 73 18 64 24 C 58 24 56 20 56 17 Z" fill="#2ed573" stroke="#1d7e41" stroke-width="1.5"/>
+        </svg>`
+      },
+      {
+        id: 'mango',
+        name_ms: 'Mangga',
+        name_en: 'Mango',
+        texture: 'licin',
+        hasSeeds: true,
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full">
+          <defs>
+            <radialGradient id="mangoBodyGrad" cx="30%" cy="28%" r="72%">
+              <stop offset="0%" stop-color="#fff176"/>
+              <stop offset="25%" stop-color="#fbc531"/>
+              <stop offset="65%" stop-color="#fa8231"/>
+              <stop offset="90%" stop-color="#eb3b5a"/>
+              <stop offset="100%" stop-color="#c0392b"/>
+            </radialGradient>
+            <linearGradient id="mangoLeafGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#7bed9f"/>
+              <stop offset="100%" stop-color="#1e824c"/>
+            </linearGradient>
+          </defs>
+          <!-- Ground Shadow -->
+          <ellipse cx="50" cy="89" rx="29" ry="7" fill="#1b380f" opacity="0.25"/>
+
+          <!-- Plump Signature Harum Manis Teardrop Silhouette (Licin) -->
+          <path d="M 48 24 C 68 22 84 36 84 56 C 84 76 68 88 52 88 C 38 88 24 82 22 66 C 20 48 30 25 48 24 Z" fill="url(#mangoBodyGrad)" stroke="#a32914" stroke-width="2.6"/>
+
+          <!-- Rosy Cheek Blush at shoulder -->
+          <ellipse cx="64" cy="46" rx="14" ry="18" fill="#ff4757" opacity="0.32" transform="rotate(15, 64, 46)"/>
+
+          <!-- Ultra-Glossy 3D Smooth Light Reflective Sheen (Licin) -->
+          <path d="M 33 34 C 27 45 28 62 38 72" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" fill="none" opacity="0.55"/>
+          <ellipse cx="38" cy="38" rx="6" ry="12" fill="#ffffff" opacity="0.75" transform="rotate(-22, 38, 38)"/>
+          <ellipse cx="52" cy="28" rx="4" ry="2" fill="#ffffff" opacity="0.6"/>
+
+          <!-- Stem Cavity, Woody Twig & Fresh Crisp Leaf -->
+          <path d="M 46 24 C 47 14 51 9 55 7 Q 58 7 56 14 C 52 20 49 24 46 24 Z" fill="#6d4c41" stroke="#3d241c" stroke-width="1.2"/>
+          <path d="M 52 14 C 66 8 72 16 62 23 C 55 24 52 18 52 14 Z" fill="url(#mangoLeafGrad)" stroke="#145a32" stroke-width="1.5"/>
+          <path d="M 53 15 Q 61 15 63 19" stroke="#b8e994" stroke-width="1.2" fill="none"/>
+        </svg>`
+      },
+      {
+        id: 'kiwi',
+        name_ms: 'Kiwi',
+        name_en: 'Kiwi',
+        texture: 'kasar',
+        hasSeeds: true,
+        svg: `<svg viewBox="0 0 100 100" class="w-full h-full">
+          <defs>
+            <radialGradient id="kiwiSkinGrad" cx="35%" cy="30%" r="70%">
+              <stop offset="0%" stop-color="#ba8555"/>
+              <stop offset="60%" stop-color="#8c5828"/>
+              <stop offset="100%" stop-color="#542e0e"/>
+            </radialGradient>
+            <radialGradient id="kiwiFleshGrad" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#f6fedb"/>
+              <stop offset="35%" stop-color="#bceb54"/>
+              <stop offset="85%" stop-color="#72a617"/>
+              <stop offset="100%" stop-color="#55800d"/>
+            </radialGradient>
+          </defs>
+          <ellipse cx="50" cy="88" rx="36" ry="8" fill="#1b380f" opacity="0.25"/>
+          <!-- Whole Fuzzy Rough Kiwi (Kasar) in Background -->
+          <g transform="translate(16, 12)">
+            <!-- Fuzzy bristles radiating along edge -->
+            <g stroke="#6e421a" stroke-width="1.8" stroke-linecap="round" opacity="0.85">
+              <line x1="8" y1="20" x2="4" y2="17"/><line x1="6" y1="32" x2="1" y2="32"/><line x1="9" y1="46" x2="4" y2="49"/>
+              <line x1="16" y1="12" x2="14" y2="7"/><line x1="28" y1="7" x2="28" y2="2"/><line x1="42" y1="8" x2="45" y2="3"/>
+              <line x1="52" y1="18" x2="56" y2="15"/><line x1="56" y1="30" x2="61" y2="28"/><line x1="54" y1="44" x2="59" y2="47"/>
+            </g>
+            <!-- Chubby Oval Kiwi Body -->
+            <ellipse cx="32" cy="34" rx="24" ry="29" fill="url(#kiwiSkinGrad)" stroke="#4a2609" stroke-width="2.5" transform="rotate(-15, 32, 34)"/>
+            <!-- Texture specks on rough brown skin -->
+            <g fill="#4a2609" opacity="0.4">
+              <circle cx="24" cy="22" r="1.2"/><circle cx="34" cy="18" r="1.4"/><circle cx="42" cy="25" r="1.2"/>
+              <circle cx="20" cy="34" r="1.3"/><circle cx="30" cy="30" r="1.5"/><circle cx="40" cy="36" r="1.2"/>
+            </g>
+            <ellipse cx="25" cy="24" rx="8" ry="14" fill="#ffffff" opacity="0.25" transform="rotate(-20, 25, 24)"/>
+            <ellipse cx="28" cy="8" rx="4" ry="2.5" fill="#3e1f06"/>
+          </g>
+          <!-- Fresh Juicy Sliced Kiwi Showing Rough Fuzzy Peel (Kasar) & Seeds -->
+          <g transform="translate(44, 38)">
+            <!-- Fuzzy Outer Rough Peel Rim -->
+            <circle cx="26" cy="26" r="25" fill="#7a481c" stroke="#4a2609" stroke-width="2.2"/>
+            <!-- Fuzzy bristles around cut slice rim -->
+            <g stroke="#542e0e" stroke-width="1.6" stroke-linecap="round">
+              <line x1="26" y1="1" x2="26" y2="-3"/>
+              <line x1="44" y1="8" x2="48" y2="5"/>
+              <line x1="51" y1="26" x2="55" y2="26"/>
+              <line x1="44" y1="44" x2="47" y2="47"/>
+              <line x1="26" y1="51" x2="26" y2="55"/>
+              <line x1="8" y1="44" x2="5" y2="47"/>
+            </g>
+            <!-- Radiant Emerald Lime Flesh -->
+            <circle cx="26" cy="26" r="22.5" fill="url(#kiwiFleshGrad)"/>
+            <!-- Translucent radial spokes -->
+            <g stroke="#ffffff" stroke-width="1.2" opacity="0.6" stroke-linecap="round">
+              <line x1="26" y1="16" x2="26" y2="9"/><line x1="26" y1="36" x2="26" y2="43"/>
+              <line x1="16" y1="26" x2="9" y2="26"/><line x1="36" y1="26" x2="43" y2="26"/>
+              <line x1="19" y1="19" x2="14" y2="14"/><line x1="33" y1="33" x2="38" y2="38"/>
+              <line x1="19" y1="33" x2="14" y2="38"/><line x1="33" y1="19" x2="38" y2="14"/>
+            </g>
+            <!-- Creamy Center Core -->
+            <ellipse cx="26" cy="26" rx="7" ry="5.5" fill="#f1f9d2" stroke="#d5eaa0" stroke-width="1"/>
+            <!-- Ring of Tiny Kiwi Seeds -->
+            <g fill="#202528">
+              <ellipse cx="26" cy="17" rx="1.1" ry="1.7"/>
+              <ellipse cx="32" cy="18.5" rx="1.1" ry="1.7" transform="rotate(30, 32, 18.5)"/>
+              <ellipse cx="35" cy="23" rx="1.1" ry="1.7" transform="rotate(65, 35, 23)"/>
+              <ellipse cx="34" cy="29" rx="1.1" ry="1.7" transform="rotate(110, 34, 29)"/>
+              <ellipse cx="30" cy="34" rx="1.1" ry="1.7" transform="rotate(145, 30, 34)"/>
+              <ellipse cx="26" cy="35" rx="1.1" ry="1.7"/>
+              <ellipse cx="21" cy="33.5" rx="1.1" ry="1.7" transform="rotate(-145, 21, 33.5)"/>
+              <ellipse cx="17.5" cy="29" rx="1.1" ry="1.7" transform="rotate(-110, 17.5, 29)"/>
+              <ellipse cx="17" cy="23" rx="1.1" ry="1.7" transform="rotate(-65, 17, 23)"/>
+              <ellipse cx="20.5" cy="18.5" rx="1.1" ry="1.7" transform="rotate(-30, 20.5, 18.5)"/>
+            </g>
+            <path d="M 12 18 A 18 18 0 0 1 24 10" stroke="#ffffff" stroke-width="2.5" fill="none" stroke-linecap="round" opacity="0.6"/>
+          </g>
+        </svg>`
+      }
+    ];
+
+    /* Farm Scene names for dynamic environment badges */
+    const FARM_SCENES = [
+      { ms: "Kebun Epal Ceria", en: "Cheerful Apple Orchard" },
+      { ms: "Ladang Strawberi Manis", en: "Sweet Strawberry Patch" },
+      { ms: "Dusun Nanas Emas", en: "Golden Pineapple Field" },
+      { ms: "Pondok Tembikai Segar", en: "Fresh Watermelon Grove" },
+      { ms: "Lembah Buah Naga", en: "Dragon Fruit Valley" },
+      { ms: "Bangsal Tuai Buah", en: "Harvest Barn Station" },
+      { ms: "Taman Jeruk Masam Manis", en: "Citrus Blossom Farm" }
+    ];
+
+    /* =========================================================
+       4. LOCAL STORAGE & PERSISTENCE
+       ========================================================= */
+    const STORAGE_KEY = 'kinderKlub_buahTekstur_playerProfile';
+
+    let userProfile = {
+      playerName: '',
+      studentName: '',
+      studentClass: '',
+      studentNotes: '',
+      familyCode: '',
+      familyHistory: [],
+      gamesPlayed: 0,
+      questionsAnswered: 0,
+      correctAnswers: 0,
+      bestScore: 0,
+      accuracy: 0,
+      recentActivity: [],
+      language: 'ms'
+    };
+
+    function loadProfileFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          userProfile = { ...userProfile, ...parsed };
+          if (userProfile.language) {
+            currentLang = userProfile.language;
+            document.getElementById('lang-current-label').textContent = currentLang.toUpperCase();
+          }
+        }
+      } catch (err) {
+        console.warn("Storage access notice:", err);
+      }
+      syncProfileUI();
+    }
+
+    function saveProfileToStorage() {
+      try {
+        userProfile.language = currentLang;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(userProfile));
+      } catch (err) {
+        console.warn("Storage save notice:", err);
+      }
+    }
+
+    function syncProfileUI() {
+      document.getElementById('prof-input-name').value = userProfile.playerName || '';
+      document.getElementById('prof-val-games').textContent = userProfile.gamesPlayed;
+      document.getElementById('prof-val-answered').textContent = userProfile.questionsAnswered;
+      document.getElementById('prof-val-correct-tot').textContent = userProfile.correctAnswers;
+      document.getElementById('prof-val-best-score').textContent = userProfile.bestScore;
+      document.getElementById('prof-val-accuracy-tot').textContent = (userProfile.accuracy || 0) + '%';
+
+      // Student Profile
+      document.getElementById('stud-input-name').value = userProfile.studentName || '';
+      document.getElementById('stud-input-class').value = userProfile.studentClass || '';
+      document.getElementById('stud-input-notes').value = userProfile.studentNotes || '';
+
+      // Family Code & History
+      document.getElementById('fam-input-code').value = userProfile.familyCode || '';
+      renderFamilyHistoryUI();
+      renderRecentActivityUI();
+    }
+
+    function savePlayerName() {
+      const val = document.getElementById('prof-input-name').value.trim();
+      userProfile.playerName = val;
+      saveProfileToStorage();
+      playChime('pop');
+      showQuickFeedback(I18N[currentLang].savedAlert);
+    }
+
+    function saveStudentProfile() {
+      userProfile.studentName = document.getElementById('stud-input-name').value.trim();
+      userProfile.studentClass = document.getElementById('stud-input-class').value.trim();
+      userProfile.studentNotes = document.getElementById('stud-input-notes').value.trim();
+      saveProfileToStorage();
+      playChime('pop');
+      showQuickFeedback(I18N[currentLang].savedAlert);
+    }
+
+    function saveFamilyCode() {
+      const code = document.getElementById('fam-input-code').value.trim();
+      userProfile.familyCode = code;
+      if (code) {
+        userProfile.familyHistory.unshift({
+          code: code,
+          date: new Date().toLocaleDateString(currentLang === 'ms' ? 'ms-MY' : 'en-US')
+        });
+      }
+      saveProfileToStorage();
+      renderFamilyHistoryUI();
+      playChime('pop');
+      showQuickFeedback(I18N[currentLang].savedAlert);
+    }
+
+    function renderFamilyHistoryUI() {
+      const cont = document.getElementById('fam-history-container');
+      if (!userProfile.familyHistory || userProfile.familyHistory.length === 0) {
+        cont.innerHTML = `<p id="fam-empty-history" class="text-xs text-slate-400 font-semibold italic text-center py-4">${I18N[currentLang].famEmptyHist}</p>`;
+        return;
+      }
+      cont.innerHTML = userProfile.familyHistory.slice(0, 5).map(item => `
+        <div class="bg-amber-50/80 p-2.5 rounded-xl border border-amber-200 flex justify-between items-center text-xs">
+          <span class="font-extrabold text-amber-900">${item.code}</span>
+          <span class="text-slate-500 font-bold">${item.date}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderRecentActivityUI() {
+      const cont = document.getElementById('prof-activity-list');
+      if (!userProfile.recentActivity || userProfile.recentActivity.length === 0) {
+        cont.innerHTML = `<p id="prof-empty-activity" class="text-xs text-slate-400 font-semibold italic text-center py-4">${I18N[currentLang].profEmptyAct}</p>`;
+        return;
+      }
+      cont.innerHTML = userProfile.recentActivity.slice(0, 5).map(act => `
+        <div class="bg-white p-2.5 rounded-xl border border-amber-200 flex justify-between items-center text-xs shadow-sm">
+          <div>
+            <span class="font-black text-emerald-800">${act.type}</span>
+            <span class="text-slate-400 ml-1">(${act.date})</span>
+          </div>
+          <span class="font-extrabold text-amber-800">+${act.score} pts</span>
+        </div>
+      `).join('');
+    }
+
+    function recordCompletedSession(score, correct, total) {
+      userProfile.gamesPlayed += 1;
+      userProfile.questionsAnswered += total;
+      userProfile.correctAnswers += correct;
+      if (score > userProfile.bestScore) userProfile.bestScore = score;
+      if (userProfile.questionsAnswered > 0) {
+        userProfile.accuracy = Math.round((userProfile.correctAnswers / userProfile.questionsAnswered) * 100);
+      }
+      userProfile.recentActivity.unshift({
+        type: currentLang === 'ms' ? `Cabaran ${total} Soalan` : `${total} Questions Quest`,
+        score: score,
+        date: new Date().toLocaleDateString(currentLang === 'ms' ? 'ms-MY' : 'en-US')
+      });
+      saveProfileToStorage();
+      syncProfileUI();
+    }
+
+    /* =========================================================
+       5. NAVIGATION & SCREEN CONTROLLER
+       ========================================================= */
+    const SCREENS = ['home', 'instructions', 'session', 'game', 'result', 'collection', 'profile', 'student', 'family'];
+
+    function navTo(screenId) {
+      initAudio();
+      playChime('pop');
+      SCREENS.forEach(id => {
+        const el = document.getElementById(`screen-${id}`);
+        if (el) el.classList.remove('active');
+      });
+      const target = document.getElementById(`screen-${screenId}`);
+      if (target) target.classList.add('active');
+
+      const scorePill = document.getElementById('header-score-pill');
+      if (screenId === 'game') {
+        scorePill.classList.remove('hidden');
+        scorePill.classList.add('flex');
+      } else {
+        scorePill.classList.add('hidden');
+        scorePill.classList.remove('flex');
+      }
+
+      if (screenId === 'instructions') renderInstructionDemos();
+      if (screenId === 'collection') renderCollectionGrid();
+    }
+
+    function mascotSpeak() {
+      playChime('pop');
+      const speech = document.getElementById('home-mascot-speech');
+      const messagesMs = ["Wah, comelnya buah ini!", "Jom teroka ladang sama-sama!", "Sentuh dan rasa tekstur buah!"];
+      const messagesEn = ["Wow, what cute fruits!", "Let's explore the farm together!", "Feel and discover fruit skin!"];
+      const list = currentLang === 'ms' ? messagesMs : messagesEn;
+      speech.textContent = list[Math.floor(Math.random() * list.length)];
+    }
+
+    function showQuickFeedback(msg) {
+      const fb = document.getElementById('game-feedback-text');
+      if (fb) fb.textContent = msg;
+    }
+
+    /* =========================================================
+       6. GAMEPLAY ENGINE & VARIATIONS
+       ========================================================= */
+    let gameState = {
+      sessionLength: 5, // 5, 10, 15, or 0 (free)
+      currentIndex: 0,
+      currentScore: 0,
+      correctCount: 0,
+      activeTask: null,
+      usedTaskHashes: new Set(),
+      isLocked: false
+    };
+
+    function startSession(numQuestions) {
+      gameState.sessionLength = numQuestions;
+      gameState.currentIndex = 0;
+      gameState.currentScore = 0;
+      gameState.correctCount = 0;
+      gameState.isLocked = false;
+      gameState.usedTaskHashes.clear();
+      document.getElementById('header-score-num').textContent = '0';
+      navTo('game');
+      nextQuestion();
+    }
+
+    function quitGamePrompt() {
+      if (confirm(I18N[currentLang].quitConfirm)) {
+        navTo('home');
+      }
+    }
+
+    function playAgain() {
+      startSession(gameState.sessionLength || 5);
+    }
+
+    function nextQuestion() {
+      gameState.isLocked = false;
+      showQuickFeedback(I18N[currentLang].feedbackDefault);
+
+      // Check if session completed
+      if (gameState.sessionLength > 0 && gameState.currentIndex >= gameState.sessionLength) {
+        showResults();
+        return;
+      }
+
+      gameState.currentIndex++;
+      updateProgressDisplay();
+      randomizeFarmScene();
+
+      // Clear any prior drag svg lines
+      const svgArea = document.getElementById('drag-connect-svg');
+      svgArea.innerHTML = '';
+
+      // Generate a non-repeating dynamic task
+      gameState.activeTask = generateDynamicTask();
+      renderActiveTask(gameState.activeTask);
+    }
+
+    function updateProgressDisplay() {
+      const label = document.getElementById('game-progress-label');
+      const text = document.getElementById('game-progress-text');
+      if (gameState.sessionLength === 0) {
+        label.textContent = I18N[currentLang].freePlayProgress;
+        text.textContent = `∞ (${gameState.currentIndex})`;
+      } else {
+        label.textContent = I18N[currentLang].questionProgress;
+        text.textContent = `${gameState.currentIndex} / ${gameState.sessionLength}`;
+      }
+    }
+
+    function randomizeFarmScene() {
+      const scene = FARM_SCENES[Math.floor(Math.random() * FARM_SCENES.length)];
+      document.getElementById('game-scene-title').textContent = currentLang === 'ms' ? scene.ms : scene.en;
+      renderMiniMascotAvatar('idle');
+    }
+
+    function renderMiniMascotAvatar(state) {
+      const cont = document.getElementById('game-mascot-avatar');
+      cont.innerHTML = `
+        <svg viewBox="0 0 100 100" class="w-full h-full filter drop-shadow">
+          <circle cx="30" cy="30" r="14" fill="#c08457" stroke="#784421" stroke-width="2.5"/>
+          <circle cx="70" cy="30" r="14" fill="#c08457" stroke="#784421" stroke-width="2.5"/>
+          <ellipse cx="50" cy="54" rx="34" ry="28" fill="#d29864" stroke="#784421" stroke-width="3"/>
+          <circle cx="34" cy="62" r="6" fill="#ff7675" opacity="0.6"/>
+          <circle cx="66" cy="62" r="6" fill="#ff7675" opacity="0.6"/>
+          <ellipse cx="50" cy="60" rx="13" ry="9" fill="#fff5eb"/>
+          <polygon points="50,56 46,60 54,60" fill="#5c3818"/>
+          <circle cx="40" cy="48" r="4.5" fill="#2d3436"/>
+          <circle cx="60" cy="48" r="4.5" fill="#2d3436"/>
+          <circle cx="41.5" cy="46.5" r="1.8" fill="#ffffff"/>
+          <circle cx="61.5" cy="46.5" r="1.8" fill="#ffffff"/>
+          <!-- Little yellow straw hat -->
+          <ellipse cx="50" cy="30" rx="40" ry="8" fill="#ffeaa7" stroke="#d6a031" stroke-width="2"/>
+          <path d="M 32 30 C 32 10 68 10 68 30 Z" fill="#fed330" stroke="#d6a031" stroke-width="2"/>
+        </svg>
+      `;
+    }
+
+    function generateDynamicTask() {
+      // Possible variations:
+      // 'tap_single' (Cari Buah Licin / Berbintik / etc.)
+      // 'drag_connect' (Mandatory Drag fruit to texture destination)
+      // 'basket_sort' (Susun ikut tekstur ke dalam bakul)
+      // 'seeds_tap' (Buah mana ada biji)
+      const variations = ['tap_single', 'drag_connect', 'basket_sort', 'seeds_tap'];
+      let chosenType = variations[Math.floor(Math.random() * variations.length)];
+
+      // Ensure Drag-to-Connect occurs frequently
+      if (gameState.currentIndex === 1 || (gameState.currentIndex % 3 === 0)) {
+        chosenType = 'drag_connect';
+      }
+
+      // Pick target texture or concept
+      const targetTextures = ['licin', 'berbintik', 'bersisik', 'kasar', 'berbonjol', 'berjalur'];
+      const targetTexId = targetTextures[Math.floor(Math.random() * targetTextures.length)];
+
+      // Find suitable matching fruits and distractors
+      const matchingFruits = FRUITS_DATABASE.filter(f => f.texture === targetTexId);
+      const otherFruits = FRUITS_DATABASE.filter(f => f.texture !== targetTexId);
+
+      const targetFruit = matchingFruits[Math.floor(Math.random() * matchingFruits.length)] || FRUITS_DATABASE[0];
+      const distractors = shuffleArray([...otherFruits]).slice(0, 3);
+
+      return {
+        type: chosenType,
+        targetTexture: targetTexId,
+        targetFruit: targetFruit,
+        options: shuffleArray([targetFruit, ...distractors]),
+        completed: false
+      };
+    }
+
+    function renderActiveTask(task) {
+      const playArea = document.getElementById('game-play-area');
+      playArea.innerHTML = '';
+      updateTaskInstruction();
+
+      if (task.type === 'tap_single') {
+        renderTapSingleTask(playArea, task);
+      } else if (task.type === 'drag_connect') {
+        renderDragConnectTask(playArea, task);
+      } else if (task.type === 'basket_sort') {
+        renderBasketSortTask(playArea, task);
+      } else if (task.type === 'seeds_tap') {
+        renderSeedsTask(playArea, task);
+      }
+    }
+
+    function updateTaskInstruction() {
+      const qText = document.getElementById('game-question-text');
+      const hintText = document.getElementById('game-hint-text');
+      const t = gameState.activeTask;
+      if (!t) return;
+
+      const texMeta = TEXTURE_DEFS[t.targetTexture] || TEXTURE_DEFS.licin;
+      const texName = currentLang === 'ms' ? texMeta.name_ms : texMeta.name_en;
+
+      if (t.type === 'tap_single') {
+        qText.textContent = currentLang === 'ms' ? `Cari buah yang ${texName.toLowerCase()}!` : `Find the ${texName.toLowerCase()} fruit!`;
+        hintText.textContent = currentLang === 'ms' ? `Tekan buah dengan permukaan ${texName.toLowerCase()}.` : `Tap the fruit with a ${texName.toLowerCase()} surface.`;
+      } else if (t.type === 'drag_connect') {
+        qText.textContent = currentLang === 'ms' ? `Sambungkan Buah ke Tekstur!` : `Connect Fruit to its Texture!`;
+        hintText.textContent = currentLang === 'ms' ? `Tarik garis dari buah ke label tekstur yang betul.` : `Drag a line from the fruit to the correct texture.`;
+      } else if (t.type === 'basket_sort') {
+        qText.textContent = currentLang === 'ms' ? `Masukkan ke Bakul ${texName}!` : `Put into the ${texName} Basket!`;
+        hintText.textContent = currentLang === 'ms' ? `Tarik buah ke bakul ladang yang sepadan.` : `Drag the matching fruit into the farm basket.`;
+      } else if (t.type === 'seeds_tap') {
+        qText.textContent = currentLang === 'ms' ? `Buah mana yang ada biji kelihatan?` : `Which fruit has visible seeds?`;
+        hintText.textContent = currentLang === 'ms' ? `Tekan buah yang jelas kelihatan bijinya.` : `Tap the fruit with clearly visible seeds.`;
+      }
+    }
+
+    /* Variation A/B/C: Tap to identify fruit with specific texture */
+    function renderTapSingleTask(container, task) {
+      const grid = document.createElement('div');
+      grid.className = 'grid grid-cols-2 sm:grid-cols-4 gap-4 w-full max-w-2xl px-2';
+
+      task.options.forEach(fruit => {
+        const btn = document.createElement('div');
+        btn.className = 'toy-card toy-card-interactive p-3 flex flex-col items-center justify-center cursor-pointer bg-white/95';
+        btn.setAttribute('role', 'button');
+        btn.setAttribute('aria-label', currentLang === 'ms' ? fruit.name_ms : fruit.name_en);
+
+        btn.innerHTML = `
+          <div class="w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center p-1">
+            ${fruit.svg}
+          </div>
+          <span class="font-extrabold text-sm sm:text-base text-slate-800 mt-1">
+            ${currentLang === 'ms' ? fruit.name_ms : fruit.name_en}
+          </span>
+        `;
+
+        btn.onclick = () => {
+          if (fruit.id === task.targetFruit.id) {
+            handleAnswerCorrect(btn);
+          } else {
+            handleAnswerWrong(btn);
+          }
+        };
+
+        grid.appendChild(btn);
+      });
+
+      container.appendChild(grid);
+    }
+
+    /* Variation F: Tap fruit with clearly visible seeds */
+    function renderSeedsTask(container, task) {
+      const grid = document.createElement('div');
+      grid.className = 'grid grid-cols-2 sm:grid-cols-4 gap-4 w-full max-w-2xl px-2';
+
+      // Pick papaya_cut or strawberry or watermelon
+      const seedFruit = FRUITS_DATABASE.find(f => f.id === 'papaya_cut') || task.targetFruit;
+      const otherFruits = shuffleArray(FRUITS_DATABASE.filter(f => f.id !== seedFruit.id && !f.id.includes('cut'))).slice(0, 3);
+      const opts = shuffleArray([seedFruit, ...otherFruits]);
+
+      opts.forEach(fruit => {
+        const btn = document.createElement('div');
+        btn.className = 'toy-card toy-card-interactive p-3 flex flex-col items-center justify-center cursor-pointer bg-white/95';
+        btn.setAttribute('role', 'button');
+
+        btn.innerHTML = `
+          <div class="w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center p-1">
+            ${fruit.svg}
+          </div>
+          <span class="font-extrabold text-sm sm:text-base text-slate-800 mt-1">
+            ${currentLang === 'ms' ? fruit.name_ms : fruit.name_en}
+          </span>
+        `;
+
+        btn.onclick = () => {
+          if (fruit.id === seedFruit.id) {
+            handleAnswerCorrect(btn);
+          } else {
+            handleAnswerWrong(btn);
+          }
+        };
+
+        grid.appendChild(btn);
+      });
+
+      container.appendChild(grid);
+    }
+
+    /* Variation D: MANDATORY Genuine Drag-to-Connect with SVG live rubber band */
+    function renderDragConnectTask(container, task) {
+      const layout = document.createElement('div');
+      layout.className = 'flex flex-col md:flex-row items-center justify-between w-full max-w-3xl gap-6 px-4 py-2 relative';
+
+      // Source Fruit on Left
+      const sourceCol = document.createElement('div');
+      sourceCol.className = 'flex flex-col items-center gap-3';
+      
+      const fruitNode = document.createElement('div');
+      fruitNode.id = 'drag-source-fruit';
+      fruitNode.className = 'toy-card p-4 flex flex-col items-center justify-center cursor-grab draggable-fruit bg-white border-4 border-amber-300';
+      fruitNode.innerHTML = `
+        <div class="w-24 h-24 sm:w-28 sm:h-28 pointer-events-none">
+          ${task.targetFruit.svg}
+        </div>
+        <span class="font-black text-slate-800 text-sm sm:text-base mt-1 pointer-events-none">
+          ${currentLang === 'ms' ? task.targetFruit.name_ms : task.targetFruit.name_en}
+        </span>
+        <div class="w-4 h-4 rounded-full bg-amber-400 mt-2 border-2 border-white shadow-inner"></div>
+      `;
+      sourceCol.appendChild(fruitNode);
+
+      // Destination Texture Targets on Right
+      const destCol = document.createElement('div');
+      destCol.className = 'flex flex-col gap-3.5 w-full md:w-64';
+
+      const correctTex = TEXTURE_DEFS[task.targetFruit.texture] || TEXTURE_DEFS.licin;
+      const otherTexs = Object.values(TEXTURE_DEFS).filter(td => td.id !== correctTex.id);
+      const textureOptions = shuffleArray([correctTex, ...shuffleArray(otherTexs).slice(0, 2)]);
+
+      textureOptions.forEach(td => {
+        const dest = document.createElement('div');
+        dest.className = 'drop-target toy-card p-3 flex items-center justify-between cursor-pointer border-3 border-slate-200 bg-white/95';
+        dest.dataset.textureId = td.id;
+        dest.innerHTML = `
+          <div class="w-4 h-4 rounded-full border-2 border-white shadow-inner" style="background-color: ${td.color};"></div>
+          <span class="font-black text-slate-800 text-sm sm:text-base">
+            ${currentLang === 'ms' ? td.name_ms : td.name_en}
+          </span>
+          <div class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs text-slate-400">➔</div>
+        `;
+        destCol.appendChild(dest);
+      });
+
+      layout.appendChild(sourceCol);
+      layout.appendChild(destCol);
+      container.appendChild(layout);
+
+      setupPointerDragConnect(fruitNode, destCol, task.targetFruit.texture);
+    }
+
+    /* Drag-to-Connect Pointer Events Engine */
+    function setupPointerDragConnect(sourceEl, targetContainer, correctTextureId) {
+      const svg = document.getElementById('drag-connect-svg');
+      let isDragging = false;
+      let line = null;
+
+      function getCenter(el) {
+        const rect = el.getBoundingClientRect();
+        const parentRect = svg.getBoundingClientRect();
+        return {
+          x: rect.left + rect.width / 2 - parentRect.left,
+          y: rect.top + rect.height / 2 - parentRect.top,
+          globalX: rect.left + rect.width / 2,
+          globalY: rect.top + rect.height / 2
+        };
+      }
+
+      function onPointerDown(e) {
+        isDragging = true;
+        sourceEl.setPointerCapture(e.pointerId);
+        playChime('pop');
+
+        const startPt = getCenter(sourceEl);
+        line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', startPt.x);
+        line.setAttribute('y1', startPt.y);
+        line.setAttribute('x2', startPt.x);
+        line.setAttribute('y2', startPt.y);
+        line.setAttribute('stroke', '#ff9f43');
+        line.setAttribute('stroke-width', '6');
+        line.setAttribute('stroke-linecap', 'round');
+        line.setAttribute('stroke-dasharray', '8, 6');
+        svg.appendChild(line);
+
+        sourceEl.addEventListener('pointermove', onPointerMove);
+        sourceEl.addEventListener('pointerup', onPointerUp);
+        sourceEl.addEventListener('pointercancel', onPointerCancel);
+      }
+
+      function onPointerMove(e) {
+        if (!isDragging || !line) return;
+        const parentRect = svg.getBoundingClientRect();
+        const curX = e.clientX - parentRect.left;
+        const curY = e.clientY - parentRect.top;
+        line.setAttribute('x2', curX);
+        line.setAttribute('y2', curY);
+
+        // Visual hover feedback on destinations
+        const targets = targetContainer.querySelectorAll('.drop-target');
+        targets.forEach(tgt => {
+          const rect = tgt.getBoundingClientRect();
+          if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+            tgt.classList.add('hover-active');
+          } else {
+            tgt.classList.remove('hover-active');
+          }
+        });
+      }
+
+      function onPointerUp(e) {
+        if (!isDragging) return;
+        isDragging = false;
+        sourceEl.releasePointerCapture(e.pointerId);
+        sourceEl.removeEventListener('pointermove', onPointerMove);
+        sourceEl.removeEventListener('pointerup', onPointerUp);
+        sourceEl.removeEventListener('pointercancel', onPointerCancel);
+
+        // Check if dropped inside a target
+        let hitTarget = null;
+        const targets = targetContainer.querySelectorAll('.drop-target');
+        targets.forEach(tgt => {
+          tgt.classList.remove('hover-active');
+          const rect = tgt.getBoundingClientRect();
+          if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+            hitTarget = tgt;
+          }
+        });
+
+        if (hitTarget) {
+          if (hitTarget.dataset.textureId === correctTextureId) {
+            // Correct connection: Lock permanent line, animate glow & complete
+            const endPt = getCenter(hitTarget);
+            line.setAttribute('x2', endPt.x);
+            line.setAttribute('y2', endPt.y);
+            line.setAttribute('stroke', '#2ed573');
+            line.removeAttribute('stroke-dasharray');
+            line.setAttribute('stroke-width', '8');
+            hitTarget.style.borderColor = '#2ed573';
+            hitTarget.style.backgroundColor = '#e8f8f0';
+            handleAnswerCorrect(hitTarget);
+          } else {
+            // Wrong texture connection: Remove line & gently bounce back
+            if (line) svg.removeChild(line);
+            handleAnswerWrong(hitTarget);
+          }
+        } else {
+          // Dropped in empty air: gentle return
+          if (line) svg.removeChild(line);
+        }
+      }
+
+      function onPointerCancel() {
+        if (line) svg.removeChild(line);
+        isDragging = false;
+      }
+
+      sourceEl.addEventListener('pointerdown', onPointerDown);
+    }
+
+    /* Variation J: Texture Farm Basket Sort */
+    function renderBasketSortTask(container, task) {
+      const layout = document.createElement('div');
+      layout.className = 'flex flex-col items-center gap-6 w-full max-w-3xl px-2';
+
+      // Draggable fruit card
+      const fruitCard = document.createElement('div');
+      fruitCard.className = 'toy-card p-3 flex flex-col items-center justify-center cursor-grab draggable-fruit bg-white border-4 border-amber-300';
+      fruitCard.innerHTML = `
+        <div class="w-24 h-24 sm:w-28 sm:h-28 pointer-events-none">
+          ${task.targetFruit.svg}
+        </div>
+        <span class="font-black text-slate-800 text-sm mt-1 pointer-events-none">
+          ${currentLang === 'ms' ? task.targetFruit.name_ms : task.targetFruit.name_en}
+        </span>
+      `;
+
+      // 2 Cute Farm Baskets
+      const basketRow = document.createElement('div');
+      basketRow.className = 'grid grid-cols-2 gap-4 sm:gap-8 w-full max-w-md';
+
+      const correctTex = TEXTURE_DEFS[task.targetFruit.texture] || TEXTURE_DEFS.licin;
+      const otherTexs = Object.values(TEXTURE_DEFS).filter(td => td.id !== correctTex.id);
+      const distractorTex = otherTexs[Math.floor(Math.random() * otherTexs.length)];
+      const basketOptions = shuffleArray([correctTex, distractorTex]);
+
+      basketOptions.forEach(tex => {
+        const basket = document.createElement('div');
+        basket.className = 'drop-target toy-card p-3 flex flex-col items-center justify-center cursor-pointer border-3 border-amber-200 bg-amber-50/90';
+        basket.dataset.textureId = tex.id;
+        basket.innerHTML = `
+          <!-- Premium 3D Woven Harvest Basket -->
+          <div class="w-22 h-22 sm:w-28 sm:h-28 pointer-events-none">
+            <svg viewBox="0 0 100 100" class="w-full h-full">
+              <defs>
+                <radialGradient id="basketCavityGrad" cx="50%" cy="40%" r="50%">
+                  <stop offset="0%" stop-color="#4a2711"/>
+                  <stop offset="80%" stop-color="#30180a"/>
+                  <stop offset="100%" stop-color="#1f0e05"/>
+                </radialGradient>
+                <linearGradient id="basketWickerGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#f5cd9e"/>
+                  <stop offset="35%" stop-color="#d9995d"/>
+                  <stop offset="80%" stop-color="#b46e32"/>
+                  <stop offset="100%" stop-color="#834617"/>
+                </linearGradient>
+                <linearGradient id="basketHandleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#834617"/>
+                  <stop offset="50%" stop-color="#f3c896"/>
+                  <stop offset="100%" stop-color="#834617"/>
+                </linearGradient>
+              </defs>
+              <!-- Contact Floor Shadow -->
+              <ellipse cx="50" cy="89" rx="36" ry="8" fill="#1b380f" opacity="0.25"/>
+
+              <!-- Sturdy Bentwood Handle (Back Arc) -->
+              <path d="M 22 45 C 20 6 80 6 78 45" stroke="url(#basketHandleGrad)" stroke-width="6.5" fill="none" stroke-linecap="round"/>
+              <path d="M 22 45 C 20 6 80 6 78 45" stroke="#5a2f10" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+              <!-- Handle Grip Coiling Wrap -->
+              <g stroke="#ffffff" stroke-width="1.8" opacity="0.6">
+                <line x1="44" y1="12" x2="47" y2="17"/>
+                <line x1="49" y1="12" x2="52" y2="17"/>
+                <line x1="54" y1="12" x2="57" y2="17"/>
+              </g>
+
+              <!-- Deep Basket Inner Cavity with Gingham/Shadow -->
+              <ellipse cx="50" cy="46" rx="37" ry="13" fill="url(#basketCavityGrad)"/>
+
+              <!-- Cute Gingham Farm Cloth peeking out from inner rim -->
+              <path d="M 24 45 Q 32 54 40 46 Q 50 56 60 47 Q 68 54 76 46" fill="#ffeaa7" stroke="#e17055" stroke-width="1.5"/>
+
+              <!-- Chunky Woven Wicker Body (Tapered 3D Toy Farm Basket) -->
+              <path d="M 13 46 Q 50 58 87 46 L 77 82 Q 50 94 23 82 Z" fill="url(#basketWickerGrad)" stroke="#67340c" stroke-width="2.6"/>
+
+              <!-- Woven Horizontal Strands with Embossed Depth -->
+              <path d="M 16 57 Q 50 69 84 57" stroke="#fce4c8" stroke-width="4" fill="none"/>
+              <path d="M 16 58 Q 50 70 84 58" stroke="#783d10" stroke-width="1.5" fill="none"/>
+
+              <path d="M 19 69 Q 50 81 81 69" stroke="#fce4c8" stroke-width="3.6" fill="none"/>
+              <path d="M 19 70 Q 50 82 81 70" stroke="#783d10" stroke-width="1.5" fill="none"/>
+
+              <!-- Interlocking Vertical Wicker Ribs -->
+              <g stroke="#67340c" stroke-width="2" stroke-linecap="round" opacity="0.75">
+                <line x1="28" y1="52" x2="33" y2="83"/>
+                <line x1="42" y1="55" x2="44" y2="86"/>
+                <line x1="58" y1="55" x2="56" y2="86"/>
+                <line x1="72" y1="52" x2="67" y2="83"/>
+              </g>
+
+              <!-- Braided Top Rim (Chunky 3D Overhanging Doughnut Rim) -->
+              <ellipse cx="50" cy="46" rx="38" ry="8" fill="none" stroke="#fed39f" stroke-width="4.5"/>
+              <ellipse cx="50" cy="46" rx="38" ry="8" fill="none" stroke="#783d10" stroke-width="1.6"/>
+              <!-- Braided notches on rim -->
+              <g stroke="#783d10" stroke-width="1.5" opacity="0.65">
+                <line x1="20" y1="45" x2="24" y2="48"/>
+                <line x1="30" y1="47" x2="34" y2="50"/>
+                <line x1="40" y1="48" x2="44" y2="51"/>
+                <line x1="50" y1="48" x2="54" y2="51"/>
+                <line x1="60" y1="48" x2="64" y2="51"/>
+                <line x1="70" y1="47" x2="74" y2="50"/>
+                <line x1="78" y1="45" x2="82" y2="48"/>
+              </g>
+            </svg>
+          </div>
+          <span class="font-black text-amber-950 text-sm sm:text-base mt-2 pointer-events-none">
+            ${currentLang === 'ms' ? tex.name_ms : tex.name_en}
+          </span>
+        `;
+
+        // Direct tap fallback for younger children
+        basket.onclick = () => {
+          if (tex.id === task.targetFruit.texture) {
+            handleAnswerCorrect(basket);
+          } else {
+            handleAnswerWrong(basket);
+          }
+        };
+
+        basketRow.appendChild(basket);
+      });
+
+      layout.appendChild(fruitCard);
+      layout.appendChild(basketRow);
+      container.appendChild(layout);
+
+      setupPointerDragToBasket(fruitCard, basketRow, task.targetFruit.texture);
+    }
+
+    function setupPointerDragToBasket(fruitEl, basketContainer, correctTexId) {
+      let isDragging = false;
+      let startX = 0, startY = 0;
+
+      fruitEl.addEventListener('pointerdown', e => {
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        fruitEl.setPointerCapture(e.pointerId);
+        fruitEl.style.transition = 'none';
+        fruitEl.style.zIndex = '50';
+        playChime('pop');
+      });
+
+      fruitEl.addEventListener('pointermove', e => {
+        if (!isDragging) return;
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        fruitEl.style.transform = `translate(${dx}px, ${dy}px) scale(1.08)`;
+
+        // Highlight baskets
+        const targets = basketContainer.querySelectorAll('.drop-target');
+        targets.forEach(tgt => {
+          const rect = tgt.getBoundingClientRect();
+          if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+            tgt.classList.add('hover-active');
+          } else {
+            tgt.classList.remove('hover-active');
+          }
+        });
+      });
+
+      fruitEl.addEventListener('pointerup', e => {
+        if (!isDragging) return;
+        isDragging = false;
+        fruitEl.releasePointerCapture(e.pointerId);
+        fruitEl.style.transition = 'transform 0.3s ease';
+
+        let hitBasket = null;
+        const targets = basketContainer.querySelectorAll('.drop-target');
+        targets.forEach(tgt => {
+          tgt.classList.remove('hover-active');
+          const rect = tgt.getBoundingClientRect();
+          if (e.clientX >= rect.left && e.clientX <= rect.right && e.clientY >= rect.top && e.clientY <= rect.bottom) {
+            hitBasket = tgt;
+          }
+        });
+
+        if (hitBasket) {
+          if (hitBasket.dataset.textureId === correctTexId) {
+            fruitEl.style.transform = 'scale(0.2)';
+            fruitEl.style.opacity = '0';
+            handleAnswerCorrect(hitBasket);
+          } else {
+            fruitEl.style.transform = 'translate(0px, 0px)';
+            handleAnswerWrong(hitBasket);
+          }
+        } else {
+          fruitEl.style.transform = 'translate(0px, 0px)';
+        }
+      });
+    }
+
+    /* Answer Handlers */
+    function handleAnswerCorrect(targetElement) {
+      if (gameState.isLocked) return;
+      gameState.isLocked = true;
+      playChime('correct');
+      gameState.currentScore += 10;
+      gameState.correctCount += 1;
+      document.getElementById('header-score-num').textContent = gameState.currentScore;
+
+      // Visual Sparkles & Glow Reaction
+      createSparkleCelebration(targetElement);
+      showQuickFeedback(I18N[currentLang].feedbackCorrect);
+
+      setTimeout(() => {
+        nextQuestion();
+      }, 1100);
+    }
+
+    function handleAnswerWrong(targetElement) {
+      if (gameState.isLocked) return;
+      gameState.isLocked = true;
+      playChime('wrong');
+      targetElement.classList.add('animate-wiggle');
+      showQuickFeedback(I18N[currentLang].feedbackWrong);
+
+      setTimeout(() => {
+        targetElement.classList.remove('animate-wiggle');
+        nextQuestion();
+      }, 850);
+    }
+
+    function createSparkleCelebration(targetEl) {
+      if (!targetEl) return;
+      const rect = targetEl.getBoundingClientRect();
+      for (let i = 0; i < 8; i++) {
+        const spark = document.createElement('div');
+        spark.style.position = 'fixed';
+        spark.style.left = (rect.left + rect.width / 2) + 'px';
+        spark.style.top = (rect.top + rect.height / 2) + 'px';
+        spark.style.width = '16px';
+        spark.style.height = '16px';
+        spark.style.pointerEvents = 'none';
+        spark.style.zIndex = '999';
+        spark.style.setProperty('--tx', (Math.random() * 80 - 40) + 'px');
+        spark.style.setProperty('--ty', (Math.random() * -60 - 20) + 'px');
+        spark.style.setProperty('--tx2', (Math.random() * 120 - 60) + 'px');
+        spark.style.setProperty('--ty2', (Math.random() * -100 - 40) + 'px');
+        spark.style.animation = 'sparkleFloat 0.9s forwards ease-out';
+        spark.innerHTML = `
+          <svg viewBox="0 0 24 24" fill="#fbc531" class="w-full h-full">
+            <polygon points="12,2 15,9 22,12 15,15 12,22 9,15 2,12 9,9"/>
+          </svg>
+        `;
+        document.body.appendChild(spark);
+        setTimeout(() => spark.remove(), 950);
+      }
+    }
+
+    function showResults() {
+      playChime('fanfare');
+      navTo('result');
+
+      const total = gameState.sessionLength || gameState.currentIndex;
+      const score = gameState.currentScore;
+      const correct = gameState.correctCount;
+      const accuracy = total > 0 ? Math.round((correct / total) * 100) : 100;
+
+      document.getElementById('res-val-score').textContent = score;
+      document.getElementById('res-val-correct').textContent = `${correct} / ${total}`;
+      document.getElementById('res-val-accuracy').textContent = `${accuracy}%`;
+
+      renderResultTrophy(accuracy);
+      recordCompletedSession(score, correct, total);
+    }
+
+    function renderResultTrophy(accuracy) {
+      const container = document.getElementById('result-trophy-svg');
+      container.innerHTML = `
+        <svg viewBox="0 0 120 120" class="w-full h-full filter drop-shadow-lg">
+          <ellipse cx="60" cy="110" rx="40" ry="8" fill="#3b7222" opacity="0.3"/>
+          <path d="M 40 100 L 80 100 L 74 85 L 46 85 Z" fill="#e1b12c" stroke="#b78a1c" stroke-width="2.5"/>
+          <rect x="52" y="70" width="16" height="18" fill="#fbc531" stroke="#b78a1c" stroke-width="2.5"/>
+          <!-- Big Golden Trophy Cup -->
+          <path d="M 32 30 Q 30 75 60 75 Q 90 75 88 30 Z" fill="#ffd32a" stroke="#d49a0d" stroke-width="3"/>
+          <!-- Handles -->
+          <path d="M 34 36 C 14 36 14 62 36 62" stroke="#d49a0d" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+          <path d="M 86 36 C 106 36 106 62 84 62" stroke="#d49a0d" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+          <!-- Star Badge in Center -->
+          <polygon points="60,42 63,50 71,51 65,56 67,64 60,60 53,64 55,56 49,51 57,50" fill="#ffffff"/>
+        </svg>
+      `;
+    }
+
+    /* =========================================================
+       7. INSTRUCTION DEMOS & COLLECTION GRID RENDERING
+       ========================================================= */
+    function renderInstructionDemos() {
+      // Demo 1: Apple
+      const d1 = document.getElementById('inst-demo-svg1');
+      const apple = FRUITS_DATABASE.find(f => f.id === 'apple');
+      if (d1 && apple) d1.innerHTML = apple.svg;
+
+      // Demo 2: Basket
+      const d2 = document.getElementById('inst-demo-svg2');
+      if (d2) {
+        d2.innerHTML = `
+          <svg viewBox="0 0 100 100" class="w-14 h-14">
+            <ellipse cx="50" cy="88" rx="34" ry="7" fill="#1b380f" opacity="0.25"/>
+            <path d="M 24 45 C 22 10 78 10 76 45" stroke="#995822" stroke-width="5" fill="none"/>
+            <ellipse cx="50" cy="46" rx="35" ry="11" fill="#3b1d0c"/>
+            <path d="M 15 46 Q 50 57 85 46 L 75 81 Q 50 92 25 81 Z" fill="#d29864" stroke="#67340c" stroke-width="2.5"/>
+            <path d="M 18 56 Q 50 67 82 56" stroke="#f5cd9e" stroke-width="3" fill="none"/>
+            <path d="M 21 68 Q 50 79 79 68" stroke="#f5cd9e" stroke-width="3" fill="none"/>
+            <ellipse cx="50" cy="46" rx="36" ry="7" fill="none" stroke="#f5cd9e" stroke-width="3.5"/>
+            <ellipse cx="50" cy="46" rx="36" ry="7" fill="none" stroke="#67340c" stroke-width="1.2"/>
+          </svg>
+        `;
+      }
+
+      // Demo 3: Star
+      const d3 = document.getElementById('inst-demo-svg3');
+      if (d3) {
+        d3.innerHTML = `
+          <svg viewBox="0 0 100 100" class="w-14 h-14">
+            <polygon points="50,15 62,38 88,42 69,60 73,85 50,72 27,85 31,60 12,42 38,38" fill="#fbc531" stroke="#d49a0d" stroke-width="3"/>
+          </svg>
+        `;
+      }
+    }
+
+    function renderCollectionGrid() {
+      const grid = document.getElementById('collection-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      FRUITS_DATABASE.forEach(fruit => {
+        const tex = TEXTURE_DEFS[fruit.texture] || TEXTURE_DEFS.licin;
+        const card = document.createElement('div');
+        card.className = 'toy-card p-3 flex flex-col items-center bg-white/95 text-center shadow-sm';
+        card.innerHTML = `
+          <div class="w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center p-1">
+            ${fruit.svg}
+          </div>
+          <h4 class="font-extrabold text-sm sm:text-base text-slate-800 mt-1">
+            ${currentLang === 'ms' ? fruit.name_ms : fruit.name_en}
+          </h4>
+          <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[11px] font-black text-white" style="background-color: ${tex.color};">
+            ${currentLang === 'ms' ? tex.name_ms : tex.name_en}
+          </span>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    /* Helper Utilities */
+    function shuffleArray(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    /* =========================================================
+       8. INITIALIZATION ON WINDOW LOAD
+       ========================================================= */
+    window.addEventListener('load', () => {
+      loadProfileFromStorage();
+      applyLanguage();
+      renderInstructionDemos();
+      renderCollectionGrid();
+
+      // Listen for window clicks to initialize audio context smoothly
+      window.addEventListener('click', () => {
+        if (!audioCtx) initAudio();
+      }, { once: true });
+    });
+  </script>
+</body>
+</html>
